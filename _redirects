@@ -1,0 +1,5 @@
+# Cloudflare Pages — redirect rules
+# Docs: https://developers.cloudflare.com/pages/configuration/redirects/
+#
+# Add rules as `from to status` per line, e.g.:
+#   /old-path  /new-path  301

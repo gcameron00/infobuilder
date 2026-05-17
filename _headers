@@ -1,0 +1,13 @@
+# Cloudflare Pages — response headers
+# Docs: https://developers.cloudflare.com/pages/configuration/headers/
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), microphone=(), payment=()
+
+# Hashed asset paths could go further, but for now cache assets for an hour
+# and let the CDN revalidate.
+/assets/*
+  Cache-Control: public, max-age=3600, must-revalidate

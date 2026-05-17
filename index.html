@@ -1,17 +1,68 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <title>Home</title>
+    <meta name="description" content="Info Builder — a simple static site hosted on Cloudflare Pages." />
+    <title>Info Builder</title>
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/css/styles.css">
     <script defer src="/assets/js/main.js"></script>
   </head>
   <body>
-    <h1>It works 🎉</h1>
-    <p>This site is deployed using Cloudflare Pages.</p>
-    <p><a href="/about/">About</a></p>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="brand" href="/" aria-label="Info Builder home">
+          <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M6 16 L13 23 L26 9" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="brand__name">Info Builder</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+          <a href="/">Home</a>
+          <a href="/about/">About</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero container">
+        <p class="eyebrow">Info Builder</p>
+        <h1>Build clear information, fast.</h1>
+        <p class="lead">
+          A small, fast, static site — hand-written HTML, CSS, and a touch of
+          JavaScript, served by Cloudflare Pages.
+        </p>
+        <p class="cta-row">
+          <a class="btn btn--primary" href="/about/">About this project</a>
+          <a class="btn btn--ghost" href="https://github.com/gcameron00/infobuilder" rel="noopener">View on GitHub</a>
+        </p>
+      </section>
+
+      <section class="container features">
+        <article class="feature">
+          <h2>No framework</h2>
+          <p>Plain HTML, CSS, and JS. No build step, no toolchain, no lock files to babysit.</p>
+        </article>
+        <article class="feature">
+          <h2>Edge-hosted</h2>
+          <p>Deployed on Cloudflare Pages, served from a global CDN — fast everywhere.</p>
+        </article>
+        <article class="feature">
+          <h2>Light &amp; dark</h2>
+          <p>Adapts to your system theme automatically using <code>prefers-color-scheme</code>.</p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <p>&copy; <span data-year>2026</span> Info Builder.</p>
+        <p><a href="https://github.com/gcameron00/infobuilder" rel="noopener">Source on GitHub</a></p>
+      </div>
+    </footer>
   </body>
 </html>
