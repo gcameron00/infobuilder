@@ -21,7 +21,7 @@ Stand up the Cloudflare Worker and wire it to a D1 database. No application logi
 - [ ] Create D1 database in the Cloudflare dashboard; bind it to the Worker.
 - [ ] Write and apply the initial migration (all tables from the schema in README).
 - [ ] Add `wrangler dev` instructions to README.
-- [ ] Auth gate: protect all `/api/*` routes with a simple token check (env var secret). Frontend login page issues the token.
+- [ ] Auth is handled by Cloudflare Zero Trust (configured in the Cloudflare dashboard, not in this repo). No auth code needed in the Worker.
 
 ---
 

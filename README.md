@@ -65,7 +65,7 @@ A dedicated schema editor lets you (as the single owner) define and modify:
 | Backend | [Cloudflare Workers](https://workers.cloudflare.com/) (TypeScript) |
 | Database | [Cloudflare D1](https://developers.cloudflare.com/d1/) (SQLite at the edge) |
 | Hosting | [Cloudflare Pages](https://pages.cloudflare.com/) (frontend) + Workers (API) |
-| Auth | Single-user gate — Cloudflare Access or a simple JWT issued at login |
+| Auth | [Cloudflare Zero Trust](https://www.cloudflare.com/zero-trust/) (managed outside this repo) |
 
 The frontend is served from Cloudflare Pages. The API is a Cloudflare Worker bound to the D1 database. Both live in this repo.
 
@@ -168,4 +168,4 @@ Branches other than `main` are deployed as preview environments.
 - **Schema-guided, user-extensible** — not fully rigid (like a traditional relational app) and not fully free-form (which leads to semantic drift). The schema is always user-defined, never hard-coded.
 - **Relationships are first-class** — a relationship type is a schema object with its own fields and constraints, not just a label on an edge.
 - **No framework on the frontend** — plain HTML, CSS, and JS. The app must remain usable with JS disabled for read-only views.
-- **Single user** — the application is built for one authenticated owner. No multi-tenancy, no sharing, no permissions model beyond "logged in or not."
+- **Single user** — the application is built for one owner. Authentication is handled entirely by Cloudflare Zero Trust outside this repo — no auth code lives here.
