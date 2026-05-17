@@ -1,16 +1,17 @@
-export interface Env {
-  DB: D1Database;
-}
+import { Hono } from 'hono'
+import type { Env } from './types'
+import stores from './routes/stores'
+import entityTypes from './routes/entityTypes'
+import relationshipTypes from './routes/relationshipTypes'
+import fields from './routes/fields'
 
-export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url);
-    const { pathname, method } = { pathname: url.pathname, method: request.method };
+const app = new Hono<{ Bindings: Env }>()
 
-    if (pathname === '/api/health' && method === 'GET') {
-      return Response.json({ ok: true });
-    }
+app.get('/api/health', (c) => c.json({ ok: true }))
 
-    return new Response('Not found', { status: 404 });
-  },
-} satisfies ExportedHandler<Env>;
+app.route('/api/stores', stores)
+app.route('/api/entity-types', entityTypes)
+app.route('/api/relationship-types', relationshipTypes)
+app.route('/api/fields', fields)
+
+export default app

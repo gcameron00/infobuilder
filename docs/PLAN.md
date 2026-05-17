@@ -30,13 +30,13 @@ Stand up the Cloudflare Worker and wire it to a D1 database. No application logi
 
 CRUD endpoints for stores, entity types, relationship types, and field definitions. No UI yet — verified with curl/Postman.
 
-- [ ] `POST /api/stores`, `GET /api/stores`, `GET /api/stores/:id`, `PUT`, `DELETE`
-- [ ] `POST /api/stores/:storeId/entity-types` and full CRUD
-- [ ] `POST /api/stores/:storeId/relationship-types` and full CRUD
-- [ ] `POST /api/entity-types/:typeId/fields` and full CRUD (field definitions)
-- [ ] `POST /api/relationship-types/:typeId/fields` and full CRUD
-- [ ] Validation: enforce that relationship type source/target entity types belong to the same store.
-- [ ] Seed script that populates a "Contacts" demo store so there is data to work with.
+- [x] `POST /api/stores`, `GET /api/stores`, `GET /api/stores/:id`, `PUT`, `DELETE`
+- [x] `POST /api/stores/:storeId/entity-types` and full CRUD
+- [x] `POST /api/stores/:storeId/relationship-types` and full CRUD
+- [x] `POST /api/entity-types/:typeId/fields` and full CRUD (field definitions)
+- [x] `POST /api/relationship-types/:typeId/fields` and full CRUD
+- [x] Validation: enforce that relationship type source/target entity types belong to the same store.
+- [x] Seed script (`seed.sql`) that populates a "Contacts" demo store — run with `npm run seed:local` / `seed:remote`.
 
 ---
 

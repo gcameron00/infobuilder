@@ -6,7 +6,12 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "migrate:local": "wrangler d1 migrations apply infobuilder-db --local",
-    "migrate:remote": "wrangler d1 migrations apply infobuilder-db --remote"
+    "migrate:remote": "wrangler d1 migrations apply infobuilder-db --remote",
+    "seed:local": "wrangler d1 execute infobuilder-db --file=seed.sql --local",
+    "seed:remote": "wrangler d1 execute infobuilder-db --file=seed.sql --remote"
+  },
+  "dependencies": {
+    "hono": "^4"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250515.0",
