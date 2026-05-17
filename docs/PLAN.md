@@ -18,9 +18,9 @@ Stand up the Cloudflare Worker and wire it to a D1 database. No application logi
 
 - [x] Create `worker/` directory with `wrangler.toml`, `package.json`, TypeScript config.
 - [x] Write a minimal Worker with a `/api/health` endpoint that returns `{ ok: true }`.
-- [ ] Create D1 database via `wrangler d1 create infobuilder-db`; paste the returned `database_id` into `wrangler.toml`.
+- [x] Create D1 database via `wrangler d1 create infobuilder-db`; paste the returned `database_id` into `wrangler.toml`.
 - [x] Write initial migration (`migrations/0001_initial.sql`) — all tables from the schema in README.
-- [ ] Apply migration locally (`npm run migrate:local`) and verify with `npm run dev`.
+- [x] Apply migration locally (`npm run migrate:local`) and verify with `npm run dev`.
 - [x] Add `wrangler dev` instructions to README.
 - [x] Auth is handled by Cloudflare Zero Trust (configured in the Cloudflare dashboard, not in this repo). No auth code needed in the Worker.
 

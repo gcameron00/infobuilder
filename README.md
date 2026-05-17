@@ -105,10 +105,13 @@ Relationship      { id, relationship_type_id, source_entity_id, target_entity_id
 │   ├── css/styles.css          # Global stylesheet
 │   ├── js/main.js              # Shared client-side script
 │   └── favicon.svg
-├── worker/                     # Cloudflare Worker (API) — future
+├── worker/                     # Cloudflare Worker (API)
+│   ├── migrations/
+│   │   └── 0001_initial.sql    # D1 schema migrations
 │   ├── src/
 │   │   └── index.ts
 │   ├── wrangler.toml
+│   ├── tsconfig.json
 │   └── package.json
 ├── _headers                    # Cloudflare Pages response headers
 ├── _redirects                  # Cloudflare Pages redirect rules
@@ -152,15 +155,21 @@ Wrangler provides a local D1 instance — no Cloudflare account needed for dev.
 
 ## Deployment
 
-The frontend deploys from the `main` branch via Cloudflare Pages. The Worker deploys separately via Wrangler or a Pages Function binding.
+**Frontend** deploys from `main` via Cloudflare Pages — no build command, repo root is the output directory. Branches other than `main` deploy as preview environments automatically.
 
-| Setting | Value |
+| Pages setting | Value |
 |---|---|
-| Build command | *(none for frontend)* |
+| Build command | *(none)* |
 | Build output directory | `/` |
 | Production branch | `main` |
 
-Branches other than `main` are deployed as preview environments.
+**Worker** deploys separately from the `worker/` directory:
+
+```sh
+cd worker
+npm run migrate:remote   # apply any new migrations to prod D1
+npm run deploy           # wrangler deploy → pushes to Cloudflare Workers
+```
 
 ---
 
