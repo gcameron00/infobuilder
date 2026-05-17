@@ -1,0 +1,16 @@
+{
+  "name": "infobuilder-worker",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "migrate:local": "wrangler d1 migrations apply infobuilder-db --local",
+    "migrate:remote": "wrangler d1 migrations apply infobuilder-db --remote"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250515.0",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.14.0"
+  }
+}

@@ -1,0 +1,9 @@
+name = "infobuilder-worker"
+main = "src/index.ts"
+compatibility_date = "2026-05-17"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "infobuilder-db"
+database_id = "f1164011-4220-41b7-bbd5-f0d017d7fc17"
+migrations_dir = "migrations"

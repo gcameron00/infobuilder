@@ -9,5 +9,8 @@ node_modules/
 dist/
 build/
 
+# Wrangler local state (D1 local DB, cache)
+.wrangler/
+
 # Editor settings
 .vscode/

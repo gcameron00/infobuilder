@@ -137,15 +137,16 @@ Open <http://localhost:8000/>.
 
 ### Worker (API)
 
-Once the Worker directory exists:
-
 ```sh
 cd worker
 npm install
-npx wrangler dev   # starts local Worker at http://localhost:8787
+npm run migrate:local   # apply migrations to the local D1 instance
+npm run dev             # starts Worker at http://localhost:8787
 ```
 
-Wrangler provides a local D1 instance — no remote database needed for dev.
+Test the health endpoint: `curl http://localhost:8787/api/health`
+
+Wrangler provides a local D1 instance — no Cloudflare account needed for dev.
 
 ---
 
