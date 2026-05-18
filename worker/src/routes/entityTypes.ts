@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import type { Env, EntityType, FieldDefinition } from '../types'
+import type { Env, EntityType, FieldDefinition, Entity } from '../types'
 
 const entityTypes = new Hono<{ Bindings: Env }>()
 
@@ -78,6 +78,32 @@ entityTypes.post('/:id/fields', async (c) => {
   const field = await c.env.DB.prepare('SELECT * FROM field_definitions WHERE id = ?')
     .bind(id).first<FieldDefinition>()
   return c.json(field, 201)
+})
+
+// ── Entities (list by type, for flat view) ─────────────────────────────────────
+
+entityTypes.get('/:id/entities', async (c) => {
+  const et = await c.env.DB.prepare('SELECT id FROM entity_types WHERE id = ?')
+    .bind(c.req.param('id')).first()
+  if (!et) return c.json({ error: 'Not found' }, 404)
+
+  const limit  = Math.min(parseInt(c.req.query('limit')  ?? '50',  10), 200)
+  const offset = parseInt(c.req.query('offset') ?? '0', 10)
+
+  const { results } = await c.env.DB.prepare(
+    'SELECT * FROM entities WHERE entity_type_id = ? LIMIT ? OFFSET ?'
+  ).bind(c.req.param('id'), limit, offset).all<Entity>()
+
+  const count = await c.env.DB.prepare(
+    'SELECT COUNT(*) AS n FROM entities WHERE entity_type_id = ?'
+  ).bind(c.req.param('id')).first<{ n: number }>()
+
+  return c.json({
+    results: results.map(e => ({ ...e, field_values: JSON.parse(e.field_values) })),
+    total: count?.n ?? 0,
+    limit,
+    offset,
+  })
 })
 
 export default entityTypes

@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import type { Env, Store, EntityType, RelationshipType } from '../types'
+import { validateFieldValues } from '../lib/validate'
 
 const stores = new Hono<{ Bindings: Env }>()
 
@@ -150,6 +151,36 @@ stores.post('/:storeId/relationship-types', async (c) => {
   const relType = await c.env.DB.prepare('SELECT * FROM relationship_types WHERE id = ?')
     .bind(id).first<RelationshipType>()
   return c.json(relType, 201)
+})
+
+// ── Entities (nested under store) ─────────────────────────────────────────────
+
+stores.post('/:storeId/entities', async (c) => {
+  const storeId = c.req.param('storeId')
+  const store = await c.env.DB.prepare('SELECT id FROM stores WHERE id = ?').bind(storeId).first()
+  if (!store) return c.json({ error: 'Store not found' }, 404)
+
+  const body = await c.req.json<{
+    entity_type_id?: string
+    field_values?: Record<string, unknown>
+  }>()
+  if (!body.entity_type_id) return c.json({ error: 'entity_type_id is required' }, 400)
+
+  const et = await c.env.DB.prepare(
+    'SELECT id FROM entity_types WHERE id = ? AND store_id = ?'
+  ).bind(body.entity_type_id, storeId).first()
+  if (!et) return c.json({ error: 'entity_type_id not found in this store' }, 400)
+
+  const fieldValues = body.field_values ?? {}
+  const errors = await validateFieldValues(c.env.DB, 'entity_type', body.entity_type_id, fieldValues)
+  if (errors.length) return c.json({ error: 'Validation failed', errors }, 400)
+
+  const id = crypto.randomUUID()
+  await c.env.DB.prepare(
+    'INSERT INTO entities (id, entity_type_id, field_values) VALUES (?, ?, ?)'
+  ).bind(id, body.entity_type_id, JSON.stringify(fieldValues)).run()
+
+  return c.json({ id, entity_type_id: body.entity_type_id, field_values: fieldValues }, 201)
 })
 
 export default stores

@@ -57,12 +57,12 @@ A web UI for defining and editing store schemas. This is the meta-layer — user
 
 CRUD endpoints for actual entity and relationship instances.
 
-- [ ] `POST /api/stores/:storeId/entities`, `GET`, `PUT`, `DELETE`
-- [ ] `GET /api/entity-types/:typeId/entities` — list all entities of a type (for flat view).
-- [ ] `GET /api/entities/:id/relationships` — all relationships touching an entity (for document view).
-- [ ] `POST /api/relationships`, `GET`, `PUT`, `DELETE`
-- [ ] Validation on save: check field values against `FieldDefinition` (required fields, data types).
-- [ ] Validate relationship instances against allowed source/target types defined in `RelationshipType`.
+- [x] `POST /api/stores/:storeId/entities`, `GET /api/entities/:id`, `PUT`, `DELETE`
+- [x] `GET /api/entity-types/:typeId/entities` — paginated list of entities of a type (for flat view).
+- [x] `GET /api/entities/:id/relationships` — all relationships touching an entity with type and related-entity data (for document view).
+- [x] `POST /api/relationships`, `GET /api/relationships/:id`, `PUT`, `DELETE`
+- [x] Validation on save: required fields and basic data-type checks via `src/lib/validate.ts`.
+- [x] Validate relationship instances against allowed source/target entity types.
 
 ---
 

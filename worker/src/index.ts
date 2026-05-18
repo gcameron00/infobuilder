@@ -5,6 +5,8 @@ import stores from './routes/stores'
 import entityTypes from './routes/entityTypes'
 import relationshipTypes from './routes/relationshipTypes'
 import fields from './routes/fields'
+import entities from './routes/entities'
+import relationships from './routes/relationships'
 
 const app = new Hono<{ Bindings: Env }>()
 
@@ -31,5 +33,7 @@ app.route('/api/stores', stores)
 app.route('/api/entity-types', entityTypes)
 app.route('/api/relationship-types', relationshipTypes)
 app.route('/api/fields', fields)
+app.route('/api/entities', entities)
+app.route('/api/relationships', relationships)
 
 export default app

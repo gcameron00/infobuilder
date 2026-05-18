@@ -37,3 +37,17 @@ export interface FieldDefinition {
   required: number;
   display_order: number;
 }
+
+export interface Entity {
+  id: string;
+  entity_type_id: string;
+  field_values: string;
+}
+
+export interface Relationship {
+  id: string;
+  relationship_type_id: string;
+  source_entity_id: string;
+  target_entity_id: string;
+  field_values: string;
+}
