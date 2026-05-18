@@ -70,13 +70,14 @@ CRUD endpoints for actual entity and relationship instances.
 
 A rich entity page showing all field values and all relationships, with inline editing. This is the core daily-use UI.
 
-- [ ] `/app/stores/:storeId/entities/:entityId` — entity document page.
-- [ ] Display all field values, grouped and ordered by `display_order`.
-- [ ] List all outgoing and incoming relationships, grouped by relationship type.
-- [ ] Each relationship entry links to the related entity's document page.
-- [ ] Inline field editing (click to edit, save on blur/submit).
-- [ ] Add / remove relationship instances from the document page.
-- [ ] Create new entity form (schema-driven, fields generated from `FieldDefinition`).
+- [x] `/app/entity/` — entity document page (query params: `?id=ENTITY_ID` or `?type=TYPE_ID&store=STORE_ID`).
+- [x] Display all field values, ordered by `display_order`.
+- [x] List all outgoing and incoming relationships, grouped by relationship type.
+- [x] Each relationship entry links to the related entity's document page.
+- [x] Inline field editing (click to edit, save on submit).
+- [x] Add / remove relationship instances from the document page.
+- [x] Create new entity form (schema-driven, fields generated from `FieldDefinition`).
+- [x] "New entity" link on each entity type card in the schema editor.
 
 ---
 
