@@ -8,18 +8,22 @@ import fields from './routes/fields'
 
 const app = new Hono<{ Bindings: Env }>()
 
-// Allow cross-origin requests from the Pages site and localhost dev servers.
-// The app is protected by Cloudflare Zero Trust, so open CORS is safe here.
+// In production requests arrive from the Pages Function (server-to-server), so CORS is
+// only needed for local dev where the browser calls the Worker directly.
 app.use('/api/*', cors({
-  origin: (origin) => {
-    if (!origin) return '*'
-    if (origin.includes('localhost')) return origin
-    if (origin.includes('infobuilder')) return origin
-    return null
-  },
+  origin: (origin) => origin?.includes('localhost') ? origin : null,
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowHeaders: ['Content-Type'],
 }))
+
+// Validate the shared secret on every API request.
+// When API_SECRET is unset (local dev), the check is skipped so dev works without secrets.
+app.use('/api/*', async (c, next) => {
+  if (c.env.API_SECRET && c.req.header('X-API-Secret') !== c.env.API_SECRET) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  await next()
+})
 
 app.get('/api/health', (c) => c.json({ ok: true }))
 

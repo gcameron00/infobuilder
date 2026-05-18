@@ -3,11 +3,11 @@
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
-// Dev: use the local Worker directly.
-// Prod: call the Worker URL directly (CORS allows the Pages domain; Zero Trust protects access).
+// Dev: call the local Worker directly (no Pages Function in dev).
+// Prod: use relative paths — the Pages Function at /api/* proxies to the Worker with the secret.
 const API = window.location.hostname === 'localhost'
   ? 'http://localhost:8787'
-  : 'https://infobuilder-worker.me-2e8.workers.dev'
+  : ''
 
 const DATA_TYPES = ['string', 'text', 'number', 'date', 'datetime', 'boolean', 'email', 'phone', 'url']
 
