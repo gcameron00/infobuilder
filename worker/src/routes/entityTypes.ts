@@ -87,16 +87,32 @@ entityTypes.get('/:id/entities', async (c) => {
     .bind(c.req.param('id')).first()
   if (!et) return c.json({ error: 'Not found' }, 404)
 
-  const limit  = Math.min(parseInt(c.req.query('limit')  ?? '50',  10), 200)
-  const offset = parseInt(c.req.query('offset') ?? '0', 10)
+  const limit   = Math.min(parseInt(c.req.query('limit')  ?? '50',  10), 200)
+  const offset  = Math.max(parseInt(c.req.query('offset') ?? '0',   10), 0)
+  const search  = c.req.query('search')?.trim() ?? ''
+  const sortRaw = c.req.query('sort') ?? ''
+  const sortDir = c.req.query('dir') === 'desc' ? 'DESC' : 'ASC'
+
+  // Validate sort field name (alphanum/underscore only) then confirm it exists in schema.
+  let orderClause = 'rowid'
+  if (sortRaw && /^[a-zA-Z0-9_]+$/.test(sortRaw)) {
+    const fieldOk = await c.env.DB.prepare(
+      "SELECT id FROM field_definitions WHERE parent_type = 'entity_type' AND parent_type_id = ? AND name = ? LIMIT 1"
+    ).bind(c.req.param('id'), sortRaw).first()
+    if (fieldOk) orderClause = `json_extract(field_values, '$.${sortRaw}')`
+  }
+
+  const searchClause = search ? ' AND field_values LIKE ?' : ''
+  const baseBinds: unknown[] = [c.req.param('id')]
+  if (search) baseBinds.push(`%${search}%`)
 
   const { results } = await c.env.DB.prepare(
-    'SELECT * FROM entities WHERE entity_type_id = ? LIMIT ? OFFSET ?'
-  ).bind(c.req.param('id'), limit, offset).all<Entity>()
+    `SELECT * FROM entities WHERE entity_type_id = ?${searchClause} ORDER BY ${orderClause} ${sortDir} LIMIT ? OFFSET ?`
+  ).bind(...baseBinds, limit, offset).all<Entity>()
 
   const count = await c.env.DB.prepare(
-    'SELECT COUNT(*) AS n FROM entities WHERE entity_type_id = ?'
-  ).bind(c.req.param('id')).first<{ n: number }>()
+    `SELECT COUNT(*) AS n FROM entities WHERE entity_type_id = ?${searchClause}`
+  ).bind(...baseBinds).first<{ n: number }>()
 
   return c.json({
     results: results.map(e => ({ ...e, field_values: JSON.parse(e.field_values) })),

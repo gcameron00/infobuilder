@@ -85,12 +85,13 @@ A rich entity page showing all field values and all relationships, with inline e
 
 A paginated, sortable table of all entities of a given type.
 
-- [ ] `/app/stores/:storeId/entity-types/:typeId` — flat list page.
-- [ ] Column headers from `FieldDefinition`, ordered by `display_order`.
-- [ ] Sort by any field; paginate (server-side, `LIMIT`/`OFFSET`).
-- [ ] Click a row to open the document view.
-- [ ] Inline "quick add" row at the top for fast entity creation.
-- [ ] Simple search/filter by field value.
+- [x] `/app/entities/` — flat list page (query param: `?type=TYPE_ID`).
+- [x] Column headers from `FieldDefinition`, ordered by `display_order`.
+- [x] Sort by any field (server-side `json_extract`); paginate (server-side `LIMIT`/`OFFSET`).
+- [x] Click a row to open the document view.
+- [x] "Quick add" form for fast entity creation.
+- [x] Search/filter by field value (server-side substring match on `field_values` JSON).
+- [x] "View" and "+ New" links on each entity type card in the schema editor.
 
 ---
 

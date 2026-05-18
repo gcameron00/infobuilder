@@ -101,7 +101,8 @@ function renderEntityTypes() {
             <code>${esc(et.name)}</code>
           </div>
           <div class="type-card__actions">
-            <a class="btn-icon" href="/app/entity/?type=${et.id}&store=${state.storeId}">+ New entity</a>
+            <a class="btn-icon" href="/app/entities/?type=${et.id}">View</a>
+            <a class="btn-icon" href="/app/entity/?type=${et.id}&store=${state.storeId}">+ New</a>
             <button class="btn-icon" data-action="toggle-fields"
                     data-id="${et.id}" data-parent="entity_type"
                     aria-expanded="${expanded}">${expanded ? '▲' : '▼'} Fields</button>
