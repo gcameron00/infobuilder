@@ -49,6 +49,7 @@ A web UI for defining and editing store schemas. This is the meta-layer — user
 - [x] Entity type editor: list types, add/edit/delete a type, manage its fields (name, data type, required, order).
 - [x] Relationship type editor: list types, add/edit/delete, select source/target entity types, set directionality, manage own fields.
 - [x] Client-side form generation from field definitions (reused in Phase 4+).
+- [x] Security: Cloudflare Zero Trust Access on the Pages site; Worker locked to requests bearing a shared `API_SECRET` injected by a Pages Function proxy (`functions/api/[[route]].js`). Direct Worker URL calls return 401.
 
 ---
 
