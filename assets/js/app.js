@@ -3,11 +3,11 @@
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
-// Dev: static server on :8000, Worker on :8787 — use absolute URL.
-// Prod: _redirects proxies /api/* to the Worker — use relative paths.
-const API = window.location.hostname === 'localhost' && window.location.port !== '8787'
+// Dev: use the local Worker directly.
+// Prod: call the Worker URL directly (CORS allows the Pages domain; Zero Trust protects access).
+const API = window.location.hostname === 'localhost'
   ? 'http://localhost:8787'
-  : ''
+  : 'https://infobuilder-worker.me-2e8.workers.dev'
 
 const DATA_TYPES = ['string', 'text', 'number', 'date', 'datetime', 'boolean', 'email', 'phone', 'url']
 

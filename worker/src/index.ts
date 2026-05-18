@@ -8,9 +8,15 @@ import fields from './routes/fields'
 
 const app = new Hono<{ Bindings: Env }>()
 
-// Allow cross-origin requests from localhost dev servers (prod is same-origin via _redirects proxy)
+// Allow cross-origin requests from the Pages site and localhost dev servers.
+// The app is protected by Cloudflare Zero Trust, so open CORS is safe here.
 app.use('/api/*', cors({
-  origin: (origin) => origin?.startsWith('http://localhost') ? origin : null,
+  origin: (origin) => {
+    if (!origin) return '*'
+    if (origin.includes('localhost')) return origin
+    if (origin.includes('infobuilder')) return origin
+    return null
+  },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowHeaders: ['Content-Type'],
 }))
