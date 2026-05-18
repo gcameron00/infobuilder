@@ -1,5 +1,9 @@
 # Cloudflare Pages — redirect rules
 # Docs: https://developers.cloudflare.com/pages/configuration/redirects/
 #
-# Add rules as `from to status` per line, e.g.:
-#   /old-path  /new-path  301
+# API proxy: forwards /api/* to the Worker so the app can use relative paths.
+# After deploying the Worker, replace the placeholder with your Worker URL
+# (shown at the end of `wrangler deploy` output, or in the Cloudflare dashboard
+# under Workers & Pages → infobuilder-worker → Settings → Domains).
+#
+/api/*  https://infobuilder-worker.infobuilder.pages.dev/api/:splat  200

@@ -4,13 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="description" content="About Info Builder." />
-    <title>About — Info Builder</title>
+    <meta name="description" content="Info Builder — manage your information stores." />
+    <title>App — Info Builder</title>
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/app.css">
     <script defer src="/assets/js/main.js"></script>
+    <script defer src="/assets/js/app.js"></script>
   </head>
-  <body>
+  <body class="app-page">
     <a class="skip-link" href="#main">Skip to content</a>
 
     <header class="site-header">
@@ -29,21 +31,14 @@
       </div>
     </header>
 
-    <main id="main">
-      <article class="container prose">
-        <p class="eyebrow">About</p>
-        <h1>Info Builder</h1>
-        <p class="lead">
-          Info Builder is a small static site hosted on Cloudflare Pages.
-        </p>
-        <p>
-          The site is hand-written HTML, CSS, and a touch of vanilla JavaScript —
-          no framework, no build step. The repo itself is the deployable artifact.
-        </p>
-        <p>
-          <a href="/">Back to home</a>
-        </p>
-      </article>
+    <main id="main" class="app-main">
+      <aside class="sidebar" id="sidebar" aria-label="Stores">
+        <div class="sidebar__loading">Loading…</div>
+      </aside>
+
+      <div class="schema-editor" id="schema-content">
+        <div class="empty-state">Loading…</div>
+      </div>
     </main>
 
     <footer class="site-footer">

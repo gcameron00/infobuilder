@@ -44,11 +44,11 @@ CRUD endpoints for stores, entity types, relationship types, and field definitio
 
 A web UI for defining and editing store schemas. This is the meta-layer — users build their schema here before entering any data.
 
-- [ ] `/app/` — application shell page (authenticated, linked from the landing page nav).
-- [ ] Store list and store switcher.
-- [ ] Entity type editor: list types, add/edit/delete a type, manage its fields (name, data type, required, order).
-- [ ] Relationship type editor: list types, add/edit/delete, select source/target entity types, set directionality, manage own fields.
-- [ ] Client-side form generation from field definitions (reused in Phase 4+).
+- [x] `/app/` — application shell page (authenticated, linked from the landing page nav).
+- [x] Store list and store switcher.
+- [x] Entity type editor: list types, add/edit/delete a type, manage its fields (name, data type, required, order).
+- [x] Relationship type editor: list types, add/edit/delete, select source/target entity types, set directionality, manage own fields.
+- [x] Client-side form generation from field definitions (reused in Phase 4+).
 
 ---
 
