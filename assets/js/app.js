@@ -28,7 +28,8 @@ async function apiFetch(method, path, body) {
   const opts = { method, headers: { 'Content-Type': 'application/json' } }
   if (body !== undefined) opts.body = JSON.stringify(body)
   const res = await fetch(API + path, opts)
-  const data = await res.json().catch(() => ({}))
+  const data = await res.json().catch(() => null)
+  if (data === null) throw new Error(`Non-JSON response from ${path} (status ${res.status}) — check the API proxy URL`)
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
   return data
 }

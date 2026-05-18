@@ -6,4 +6,4 @@
 # (shown at the end of `wrangler deploy` output, or in the Cloudflare dashboard
 # under Workers & Pages → infobuilder-worker → Settings → Domains).
 #
-/api/*  https://infobuilder-worker.infobuilder.pages.dev/api/:splat  200
+/api/*  https://infobuilder-worker.me-2e8.workers.dev/api/:splat  200
