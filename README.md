@@ -99,22 +99,48 @@ Relationship      { id, relationship_type_id, source_entity_id, target_entity_id
 ├── index.html                  # Home / landing page (/)
 ├── about/
 │   └── index.html              # About page (/about/)
-├── app/                        # Application pages (future)
-│   └── ...
+├── app/
+│   ├── index.html              # Schema editor (/app/)
+│   ├── entity/
+│   │   └── index.html          # Document view (/app/entity/?id=… or ?type=…&store=…)
+│   ├── entities/
+│   │   └── index.html          # Flat / table view (/app/entities/?type=…)
+│   ├── graph/
+│   │   └── index.html          # Graph view (/app/graph/?store=…)
+│   └── timeline/
+│       └── index.html          # Timeline view (/app/timeline/?store=…)
 ├── assets/
-│   ├── css/styles.css          # Global stylesheet
-│   ├── js/main.js              # Shared client-side script
+│   ├── css/
+│   │   ├── styles.css          # Global design system
+│   │   └── app.css             # App-specific styles
+│   ├── js/
+│   │   ├── main.js             # Shared script (year stamp, etc.)
+│   │   ├── app.js              # Schema editor
+│   │   ├── entity.js           # Document view
+│   │   ├── entities.js         # Table view
+│   │   ├── graph.js            # Graph view (Cytoscape.js)
+│   │   └── timeline.js         # Timeline view
 │   └── favicon.svg
+├── functions/
+│   └── api/
+│       └── [[route]].js        # Pages Function — authenticated proxy to the Worker
 ├── worker/                     # Cloudflare Worker (API)
 │   ├── migrations/
-│   │   └── 0001_initial.sql    # D1 schema migrations
+│   │   ├── 0001_initial.sql    # Core schema
+│   │   └── 0002_indexes.sql    # Performance indexes
 │   ├── src/
-│   │   └── index.ts
+│   │   ├── index.ts            # Hono app entry point
+│   │   ├── lib/
+│   │   │   └── validate.ts     # Field-value validation
+│   │   └── routes/             # Route handlers per resource
+│   ├── seed.sql                # Demo "Contacts" store seed data
 │   ├── wrangler.toml
 │   ├── tsconfig.json
 │   └── package.json
 ├── _headers                    # Cloudflare Pages response headers
 ├── _redirects                  # Cloudflare Pages redirect rules
+├── sitemap.xml                 # Public pages sitemap
+├── robots.txt                  # Disallows /app/*
 ├── docs/
 │   └── PLAN.md                 # Implementation plan and phase tracking
 └── README.md
@@ -144,12 +170,15 @@ Open <http://localhost:8000/>.
 cd worker
 npm install
 npm run migrate:local   # apply migrations to the local D1 instance
+npm run seed:local      # optional: load demo "Contacts" store data
 npm run dev             # starts Worker at http://localhost:8787
 ```
 
 Test the health endpoint: `curl http://localhost:8787/api/health`
 
 Wrangler provides a local D1 instance — no Cloudflare account needed for dev.
+
+The `functions/api/[[route]].js` Pages Function proxies every `/api/*` request to the Worker, injecting the `X-API-Secret` header from the `API_SECRET` Pages environment variable. The Worker rejects requests without a valid secret, so direct Worker URL calls return 401. Set `API_SECRET` as both a Pages env var and a Worker secret (`wrangler secret put API_SECRET`).
 
 ---
 
