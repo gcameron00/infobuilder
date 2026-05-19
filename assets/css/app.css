@@ -941,3 +941,207 @@ body.graph-page .site-header {
   padding: var(--space-2) var(--space-3);
   font-size: 0.8rem;
 }
+
+/* ── Timeline view ────────────────────────────────────────────────────────── */
+
+body.timeline-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+body.timeline-page .site-header {
+  flex-shrink: 0;
+}
+
+.timeline-page-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#timeline-root {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.timeline-zoom-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.timeline-zoom-label input[type="range"] {
+  width: 8rem;
+  cursor: pointer;
+}
+
+.timeline-zoom-val {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  min-width: 2.5rem;
+}
+
+.timeline-content {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  overflow: hidden;
+}
+
+.timeline-labels-col {
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.timeline-label-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.timeline-label-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.timeline-label-field {
+  font-size: 0.7rem;
+  color: var(--color-muted);
+  font-family: ui-monospace, monospace;
+}
+
+.timeline-axis-spacer {
+  border-top: 1px solid var(--color-border);
+}
+
+.timeline-scroll-area {
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Timeline tracks ──────────────────────────────────────────────────────── */
+
+.timeline-track {
+  position: relative;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+}
+
+.timeline-track::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--color-border);
+  pointer-events: none;
+}
+
+.timeline-gridline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-border);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ── Dots ─────────────────────────────────────────────────────────────────── */
+
+.timeline-dot {
+  position: absolute;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 2px solid var(--color-bg);
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease;
+  z-index: 2;
+}
+
+.timeline-dot:hover {
+  transform: translateX(-50%) scale(1.5);
+  background: var(--color-accent-hover, var(--color-accent));
+  z-index: 3;
+}
+
+.timeline-dot:hover .timeline-dot-label {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.timeline-dot-label {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  white-space: nowrap;
+  font-size: 0.75rem;
+  background: var(--color-text);
+  color: var(--color-bg);
+  padding: 2px var(--space-2);
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease, transform 120ms ease;
+  z-index: 10;
+}
+
+/* ── Axis ─────────────────────────────────────────────────────────────────── */
+
+.timeline-axis {
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  position: relative;
+}
+
+.axis-tick {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  padding-top: 4px;
+  white-space: nowrap;
+  color: var(--color-muted);
+}
+
+.axis-tick--year {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.axis-tick--month {
+  font-size: 0.65rem;
+  color: var(--color-muted);
+}

@@ -114,11 +114,13 @@ An interactive node-link diagram for exploring relationships visually.
 
 Entities with date fields plotted along a time axis.
 
-- [ ] `/app/stores/:storeId/timeline` — timeline page.
-- [ ] Auto-detect entity types that have a `date` or `datetime` field.
-- [ ] Plot entities as markers on a horizontal axis; group by entity type (swimlanes).
-- [ ] Click a marker to open the document view.
-- [ ] Zoom and pan the time axis.
+- [x] `/app/timeline/` — timeline page (query param: `?store=STORE_ID`).
+- [x] New Worker endpoint `GET /api/stores/:storeId/timeline` — auto-detects entity types with date/datetime fields and returns only entities that have a value for that field.
+- [x] Entities plotted as dots on a horizontal track; grouped into swimlanes by entity type.
+- [x] Click a dot → entity document view; hover shows a tooltip label.
+- [x] Zoom slider (0.25×–20×) with proportional scroll preservation; native horizontal scroll for pan.
+- [x] Year gridlines and axis tick marks; month ticks visible at higher zoom levels.
+- [x] Graph and Timeline links in the schema editor sidebar when a store is selected.
 
 ---
 

@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import type { Env, Store, EntityType, RelationshipType, Entity, Relationship } from '../types'
+import type { Env, Store, EntityType, RelationshipType, Entity, Relationship, FieldDefinition } from '../types'
 import { validateFieldValues } from '../lib/validate'
 
 const stores = new Hono<{ Bindings: Env }>()
@@ -181,6 +181,55 @@ stores.post('/:storeId/entities', async (c) => {
   ).bind(id, body.entity_type_id, JSON.stringify(fieldValues)).run()
 
   return c.json({ id, entity_type_id: body.entity_type_id, field_values: fieldValues }, 201)
+})
+
+// ── Timeline data (entity types with date fields + their entities) ────────────
+
+stores.get('/:storeId/timeline', async (c) => {
+  const storeId = c.req.param('storeId')
+  const store = await c.env.DB.prepare('SELECT id FROM stores WHERE id = ?').bind(storeId).first()
+  if (!store) return c.json({ error: 'Store not found' }, 404)
+
+  const { results: entityTypes } = await c.env.DB.prepare(
+    'SELECT * FROM entity_types WHERE store_id = ? ORDER BY name'
+  ).bind(storeId).all<EntityType>()
+
+  if (entityTypes.length === 0) return c.json({ swimlanes: [] })
+
+  // Find first date/datetime field per entity type (one query via JOIN)
+  const { results: dateFields } = await c.env.DB.prepare(`
+    SELECT fd.parent_type_id, fd.name, fd.data_type, fd.display_order
+    FROM field_definitions fd
+    JOIN entity_types et ON et.id = fd.parent_type_id
+    WHERE fd.parent_type = 'entity_type'
+      AND et.store_id = ?
+      AND fd.data_type IN ('date', 'datetime')
+    ORDER BY fd.parent_type_id, fd.display_order
+  `).bind(storeId).all<FieldDefinition & { parent_type_id: string }>()
+
+  const etDateField: Record<string, string> = {}
+  for (const f of dateFields) {
+    if (!etDateField[f.parent_type_id]) etDateField[f.parent_type_id] = f.name
+  }
+
+  const swimlanes = []
+  for (const et of entityTypes) {
+    const dateFieldName = etDateField[et.id]
+    if (!dateFieldName) continue
+
+    const { results: entities } = await c.env.DB.prepare(
+      'SELECT id, field_values FROM entities WHERE entity_type_id = ? LIMIT 500'
+    ).bind(et.id).all<Entity>()
+
+    const withDates = entities
+      .map(e => ({ ...e, field_values: JSON.parse(e.field_values) }))
+      .filter(e => e.field_values[dateFieldName])
+
+    if (withDates.length === 0) continue
+    swimlanes.push({ entityType: et, dateField: dateFieldName, entities: withDates })
+  }
+
+  return c.json({ swimlanes })
 })
 
 // ── Graph data (all entities + relationships for a store) ─────────────────────
