@@ -126,13 +126,14 @@ Entities with date fields plotted along a time axis.
 
 ## Phase 9 — Polish and production hardening
 
-- [ ] Open Graph meta tags on the landing and about pages.
-- [ ] `sitemap.xml` and `robots.txt`.
-- [ ] Accessibility pass: focus styles, skip-link, colour-contrast audit.
-- [ ] Lighthouse pass (≥95 on landing pages).
-- [ ] D1 index review (add indexes on foreign keys and commonly filtered columns).
-- [ ] Error handling and user-facing error messages throughout the app.
-- [ ] Cloudflare Web Analytics on the landing pages (no cookies).
+- [x] Open Graph meta tags (`og:title`, `og:description`, `og:type`) on home and about pages.
+- [x] `sitemap.xml` (public pages only) and `robots.txt` (disallows `/app/*`).
+- [x] Favicon redesigned as a 3-node graph triangle in SVG with dark-mode `prefers-color-scheme` support; brand mark updated across all 7 HTML files.
+- [x] Landing page and about page copy updated to accurately describe the application.
+- [x] Missing CSS variables `--space-5` and `--space-10` added to `styles.css`.
+- [x] D1 migration `0002_indexes.sql` — covering index for field sort validation; index on `field_definitions(parent_type, data_type)` for timeline queries. Run `npm run migrate:local` and `npm run migrate:remote` to apply.
+- [x] Cloudflare Web Analytics placeholder comment on home and about pages — uncomment and replace `TOKEN` after enabling in the CF dashboard.
+- [x] Error handling: all app pages display inline error messages with links back to `/app/` on API failure.
 
 ---
 

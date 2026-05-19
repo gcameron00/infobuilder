@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Allow: /about/
+Disallow: /app/
+Disallow: /app/entity/
+Disallow: /app/entities/
+Disallow: /app/graph/
+Disallow: /app/timeline/
+
+Sitemap: https://infobuilder.pages.dev/sitemap.xml

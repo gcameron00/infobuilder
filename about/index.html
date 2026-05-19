@@ -4,11 +4,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="description" content="About Info Builder." />
+    <meta name="description" content="About Info Builder — a personal information management app built on Cloudflare Workers and D1." />
     <title>About — Info Builder</title>
+    <meta property="og:title"       content="About — Info Builder" />
+    <meta property="og:description" content="How Info Builder is built: Cloudflare Workers, D1, and Pages with no frontend framework." />
+    <meta property="og:type"        content="website" />
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/css/styles.css">
     <script defer src="/assets/js/main.js"></script>
+    <!-- Cloudflare Web Analytics — replace TOKEN with your beacon token from the CF dashboard -->
+    <!-- <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"TOKEN"}'></script> -->
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -17,7 +22,12 @@
       <div class="container site-header__inner">
         <a class="brand" href="/" aria-label="Info Builder home">
           <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M6 16 L13 23 L26 9" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="6" x2="5"  y2="25" stroke="currentColor" stroke-width="2"  stroke-linecap="round" opacity="0.55"/>
+            <line x1="16" y1="6" x2="27" y2="25" stroke="currentColor" stroke-width="2"  stroke-linecap="round" opacity="0.55"/>
+            <line x1="5"  y1="25" x2="27" y2="25" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+            <circle cx="16" cy="6"  r="3.5" fill="currentColor"/>
+            <circle cx="5"  cy="25" r="3.5" fill="currentColor"/>
+            <circle cx="27" cy="25" r="3.5" fill="currentColor"/>
           </svg>
           <span class="brand__name">Info Builder</span>
         </a>
@@ -34,13 +44,33 @@
         <p class="eyebrow">About</p>
         <h1>Info Builder</h1>
         <p class="lead">
-          Info Builder is a small static site hosted on Cloudflare Pages.
+          A personal information management app — define your own schemas, then create,
+          browse, and explore your data across four views.
+        </p>
+        <h2>What it does</h2>
+        <p>
+          Create as many independent <strong>stores</strong> as you need (e.g. Contacts, Historical Events,
+          Reading List). Each store gets its own <strong>entity types</strong> (e.g. Person, Organisation)
+          and <strong>relationship types</strong> (e.g. WorksFor, Knows), each with custom field definitions.
         </p>
         <p>
-          The site is hand-written HTML, CSS, and a touch of vanilla JavaScript —
-          no framework, no build step. The repo itself is the deployable artifact.
+          Once your schema is set up you can create entities and relationships, then explore them through:
+          a <strong>document view</strong> (the daily driver — inline editing, relationship display),
+          a <strong>table view</strong> (sortable, searchable, paginated),
+          an <strong>interactive graph</strong> (force-directed, filterable, focusable), and
+          a <strong>timeline</strong> (auto-detected date fields, swimlanes, zoomable axis).
+        </p>
+        <h2>How it's built</h2>
+        <p>
+          Plain HTML, CSS, and vanilla JavaScript — no frontend framework, no build step.
+          The API runs on <strong>Cloudflare Workers</strong> (TypeScript + Hono) backed by
+          <strong>Cloudflare D1</strong> (SQLite at the edge). The frontend is served from
+          <strong>Cloudflare Pages</strong> with a Pages Function acting as an authenticated proxy
+          to the Worker. Authentication is handled by Cloudflare Zero Trust.
         </p>
         <p>
+          <a href="https://github.com/gcameron00/infobuilder" rel="noopener">Source on GitHub</a>
+          &nbsp;·&nbsp;
           <a href="/">Back to home</a>
         </p>
       </article>

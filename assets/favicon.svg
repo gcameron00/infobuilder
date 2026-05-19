@@ -1,8 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <style>
+    .e { stroke: #2563eb; }
+    .n { fill: #2563eb; }
     @media (prefers-color-scheme: dark) {
-      path { stroke: #60a5fa; }
+      .e { stroke: #60a5fa; }
+      .n { fill: #60a5fa; }
     }
   </style>
-  <path d="M6 16 L13 23 L26 9" fill="none" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <line class="e" x1="16" y1="6" x2="5"  y2="25" stroke-width="2"   stroke-linecap="round"/>
+  <line class="e" x1="16" y1="6" x2="27" y2="25" stroke-width="2"   stroke-linecap="round"/>
+  <line class="e" x1="5"  y1="25" x2="27" y2="25" stroke-width="2"  stroke-linecap="round"/>
+  <circle class="n" cx="16" cy="6"  r="4"/>
+  <circle class="n" cx="5"  cy="25" r="4"/>
+  <circle class="n" cx="27" cy="25" r="4"/>
 </svg>
