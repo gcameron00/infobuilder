@@ -94,9 +94,6 @@ function buildElements() {
 
 function initGraph() {
   const container = document.getElementById('cy')
-  const hasEdges  = state.data.relationships.length > 0
-  const layoutName = state.data.entities.length <= 1 ? 'preset'
-    : hasEdges ? 'cose' : 'grid'
 
   state.cy = cytoscape({
     container,
@@ -154,20 +151,32 @@ function initGraph() {
         style: { opacity: 0.15 },
       },
     ],
-    layout: {
-      name:           layoutName,
-      animate:        state.data.entities.length < 200,
-      randomize:      true,
-      nodeRepulsion:  () => 400000,
-      idealEdgeLength: () => 90,
-      gravity:        60,
-      numIter:        1000,
-      coolingFactor:  0.99,
-      minTemp:        1.0,
-    },
+    layout: { name: 'preset' },  // positions will be set by the layout below
     minZoom: 0.1,
     maxZoom: 4,
   })
+
+  // Tell Cytoscape the container may have just been sized and run the layout
+  state.cy.resize()
+
+  const hasEdges   = state.data.relationships.length > 0
+  const layoutName = state.data.entities.length <= 1 ? 'grid'
+    : hasEdges ? 'cose' : 'grid'
+
+  const layout = state.cy.layout({
+    name:            layoutName,
+    animate:         state.data.entities.length < 200,
+    randomize:       true,
+    nodeRepulsion:   () => 400000,
+    idealEdgeLength: () => 90,
+    gravity:         60,
+    numIter:         1000,
+    coolingFactor:   0.99,
+    minTemp:         1.0,
+  })
+
+  layout.on('layoutstop', () => state.cy.fit(undefined, 50))
+  layout.run()
 
   // Click node → navigate to entity document
   state.cy.on('tap', 'node', (e) => {
