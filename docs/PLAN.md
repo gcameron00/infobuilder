@@ -99,12 +99,14 @@ A paginated, sortable table of all entities of a given type.
 
 An interactive node-link diagram for exploring relationships visually.
 
-- [ ] `/app/stores/:storeId/graph` — graph page.
-- [ ] Load entities and relationships for the store (start with a reasonable limit, e.g. 500 nodes).
-- [ ] Render with a lightweight force-directed layout library (e.g. [d3-force](https://github.com/d3/d3-force) or [Cytoscape.js](https://js.cytoscape.org/)).
-- [ ] Click a node to open its document view; click an edge to see relationship details.
-- [ ] Filter by entity type and/or relationship type.
-- [ ] "Focus" mode: start from a selected entity and expand neighbours on demand (prevents overwhelming large stores).
+- [x] `/app/graph/` — graph page (query param: `?store=STORE_ID`).
+- [x] New Worker endpoint `GET /api/stores/:storeId/graph` — returns all entities, relationships, and type metadata (capped at 500/1000).
+- [x] Rendered with Cytoscape.js (CDN) using the `cose` force-directed layout; nodes coloured by entity type.
+- [x] Click a node → entity document view; click an edge → info panel with links to both endpoint entities.
+- [x] Filter by entity type and/or relationship type (show/hide checkboxes).
+- [x] Focus mode: pick any entity from a select → shows only it and its direct neighbours, animates to fit.
+- [x] Fit and Re-layout buttons; entity/relationship count in controls panel.
+- [x] "Graph →" link in the schema editor sidebar when a store is selected.
 
 ---
 

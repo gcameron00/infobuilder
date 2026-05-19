@@ -68,6 +68,7 @@ function renderSidebar() {
     </div>
     <div id="new-store-slot"></div>
     <div class="sidebar__footer">
+      ${state.storeId ? `<a class="btn btn--ghost btn--sm" href="/app/graph/?store=${state.storeId}" style="width:100%;text-align:center;text-decoration:none">Graph →</a>` : ''}
       <button class="btn btn--ghost btn--sm" data-action="show-new-store">+ New store</button>
     </div>
   `

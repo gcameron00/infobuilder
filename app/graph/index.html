@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="Info Builder — graph view." />
+    <title>Graph — Info Builder</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/app.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.29.2/cytoscape.min.js"></script>
+    <script defer src="/assets/js/main.js"></script>
+    <script defer src="/assets/js/graph.js"></script>
+  </head>
+  <body class="graph-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="brand" href="/" aria-label="Info Builder home">
+          <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M6 16 L13 23 L26 9" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="brand__name">Info Builder</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+          <a href="/">Home</a>
+          <a href="/about/">About</a>
+          <a href="/app/">App</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="graph-page-main">
+      <div id="cy"></div>
+      <div class="graph-controls" id="graph-controls">
+        <div class="graph-controls-loading">Loading…</div>
+      </div>
+      <div class="graph-info-panel" id="graph-info" hidden></div>
+      <div class="graph-truncated-warning" id="graph-truncated" hidden>
+        Graph truncated — showing first 500 entities / 1000 relationships.
+      </div>
+    </main>
+  </body>
+</html>

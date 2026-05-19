@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import type { Env, Store, EntityType, RelationshipType } from '../types'
+import type { Env, Store, EntityType, RelationshipType, Entity, Relationship } from '../types'
 import { validateFieldValues } from '../lib/validate'
 
 const stores = new Hono<{ Bindings: Env }>()
@@ -181,6 +181,37 @@ stores.post('/:storeId/entities', async (c) => {
   ).bind(id, body.entity_type_id, JSON.stringify(fieldValues)).run()
 
   return c.json({ id, entity_type_id: body.entity_type_id, field_values: fieldValues }, 201)
+})
+
+// ── Graph data (all entities + relationships for a store) ─────────────────────
+
+stores.get('/:storeId/graph', async (c) => {
+  const storeId = c.req.param('storeId')
+  const store = await c.env.DB.prepare('SELECT id FROM stores WHERE id = ?').bind(storeId).first()
+  if (!store) return c.json({ error: 'Store not found' }, 404)
+
+  const ENTITY_LIMIT = 500
+  const REL_LIMIT    = 1000
+
+  const [{ results: entityTypes }, { results: relationshipTypes }, { results: entities }, { results: relationships }] =
+    await Promise.all([
+      c.env.DB.prepare('SELECT * FROM entity_types WHERE store_id = ? ORDER BY name').bind(storeId).all<EntityType>(),
+      c.env.DB.prepare('SELECT * FROM relationship_types WHERE store_id = ? ORDER BY name').bind(storeId).all<RelationshipType>(),
+      c.env.DB.prepare(
+        'SELECT e.id, e.entity_type_id, e.field_values FROM entities e JOIN entity_types et ON et.id = e.entity_type_id WHERE et.store_id = ? LIMIT ?'
+      ).bind(storeId, ENTITY_LIMIT).all<Entity>(),
+      c.env.DB.prepare(
+        'SELECT r.id, r.relationship_type_id, r.source_entity_id, r.target_entity_id, r.field_values FROM relationships r JOIN entities e ON e.id = r.source_entity_id JOIN entity_types et ON et.id = e.entity_type_id WHERE et.store_id = ? LIMIT ?'
+      ).bind(storeId, REL_LIMIT).all<Relationship>(),
+    ])
+
+  return c.json({
+    entityTypes,
+    relationshipTypes,
+    entities:      entities.map(e => ({ ...e, field_values: JSON.parse(e.field_values) })),
+    relationships: relationships.map(r => ({ ...r, field_values: JSON.parse(r.field_values) })),
+    truncated:     entities.length >= ENTITY_LIMIT || relationships.length >= REL_LIMIT,
+  })
 })
 
 export default stores
