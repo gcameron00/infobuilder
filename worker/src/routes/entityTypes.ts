@@ -38,7 +38,29 @@ entityTypes.delete('/:id', async (c) => {
     .bind(c.req.param('id')).first()
   if (!et) return c.json({ error: 'Not found' }, 404)
 
-  await c.env.DB.prepare('DELETE FROM entity_types WHERE id = ?').bind(c.req.param('id')).run()
+  const id = c.req.param('id')
+
+  // field_definitions has no FK on parent_type_id, so clean up manually.
+  // relationship_types references entity_types without ON DELETE CASCADE, so
+  // we must delete those first (they cascade to relationship instances).
+  await c.env.DB.prepare(`
+    DELETE FROM field_definitions
+    WHERE parent_type = 'relationship_type'
+      AND parent_type_id IN (
+        SELECT id FROM relationship_types
+        WHERE source_entity_type_id = ? OR target_entity_type_id = ?
+      )
+  `).bind(id, id).run()
+
+  await c.env.DB.prepare(
+    'DELETE FROM relationship_types WHERE source_entity_type_id = ? OR target_entity_type_id = ?'
+  ).bind(id, id).run()
+
+  await c.env.DB.prepare(
+    "DELETE FROM field_definitions WHERE parent_type = 'entity_type' AND parent_type_id = ?"
+  ).bind(id).run()
+
+  await c.env.DB.prepare('DELETE FROM entity_types WHERE id = ?').bind(id).run()
   return c.json({ ok: true })
 })
 

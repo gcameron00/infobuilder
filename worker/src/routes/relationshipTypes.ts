@@ -68,7 +68,15 @@ relationshipTypes.delete('/:id', async (c) => {
     .bind(c.req.param('id')).first()
   if (!rt) return c.json({ error: 'Not found' }, 404)
 
-  await c.env.DB.prepare('DELETE FROM relationship_types WHERE id = ?').bind(c.req.param('id')).run()
+  const id = c.req.param('id')
+
+  // field_definitions has no FK on parent_type_id — clean up manually before
+  // deleting the relationship type (which cascades to relationship instances).
+  await c.env.DB.prepare(
+    "DELETE FROM field_definitions WHERE parent_type = 'relationship_type' AND parent_type_id = ?"
+  ).bind(id).run()
+
+  await c.env.DB.prepare('DELETE FROM relationship_types WHERE id = ?').bind(id).run()
   return c.json({ ok: true })
 })
 
