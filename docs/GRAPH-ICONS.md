@@ -1,6 +1,6 @@
 # Icons in the graph view — design proposal
 
-> Status: **Phase B implemented** (icons vendored, graph rendering, sidebar chips). Phase C pending. Tracked under issue [#3](https://github.com/gcameron00/infobuilder/issues/3).
+> Status: **Phase C implemented** — all three phases complete. Tracked under issue [#3](https://github.com/gcameron00/infobuilder/issues/3).
 
 ## 1. Goal
 
@@ -231,9 +231,12 @@ Cleanly splittable into three commits, each independently useful:
 - Cytoscape node style uses `background-image: data(iconUri)` on the `node[iconUri != ""]` selector; size increased 30×30 → 36×36.
 - Filter sidebar: entity types with an icon render a `.graph-icon-chip` (rounded square, tinted background, coloured-stroke icon at 12 px) instead of the plain `.graph-color-dot`.
 
-**Phase C — icon picker UI in the schema editor**
-- Picker popover with search.
-- Auto-suggestion on new entity type creation (§5.2).
+**Phase C — icon picker UI in the schema editor** ✅
+- Icon picker added to the new/edit entity type forms in `assets/js/app.js`.
+- Popover grid of all 40 icons with live search filtering (substring match on slug).
+- Auto-suggestion on new entity type creation: fires on the internal name field (`#net-name`), pre-fills the picker using the synonym table from §5.2. Stops auto-suggesting once the user manually selects an icon.
+- Selected icon sent as `icon` field on `POST /entity-types` and `PUT /entity-types/:id`.
+- Entity type cards in the schema editor show the icon (16 px, muted) when one is set.
 
 Each phase is shippable. Phase A on its own is invisible to users (no UI). Phase B is usable if a tech-savvy user sets icons via the API. Phase C closes the loop.
 

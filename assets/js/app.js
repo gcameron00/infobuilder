@@ -11,6 +11,32 @@ const API = window.location.hostname === 'localhost'
 
 const DATA_TYPES = ['string', 'text', 'number', 'date', 'datetime', 'boolean', 'email', 'phone', 'url']
 
+const ICONS = [
+  'activity','book-open','briefcase','building-2','calendar','circle',
+  'clock','compass','cpu','disc','film','flag','flame','folder',
+  'globe','graduation-cap','hash','heart','home','image','landmark',
+  'layers','leaf','link','mail','map-pin','microscope','mountain',
+  'music','newspaper','palette','scroll','shield','star','store',
+  'tag','trophy','tv','user','users',
+]
+
+const ICON_SUGGESTIONS = [
+  [['person','people','user','contact','human','member'], 'user'],
+  [['org','organisation','organization','company','business','firm'], 'building-2'],
+  [['place','location','venue','address','city','country'], 'map-pin'],
+  [['event','meeting','appointment'], 'calendar'],
+  [['era','period','age'], 'clock'],
+  [['band','group','ensemble','team'], 'users'],
+  [['album','song','track','music','recording','sound'], 'music'],
+  [['book','publication','article','paper'], 'book-open'],
+  [['tag','genre','category','topic'], 'tag'],
+  [['film','movie','cinema'], 'film'],
+  [['show','programme','program','channel'], 'tv'],
+  [['disc','record','vinyl','release'], 'disc'],
+  [['award','prize','trophy','achievement'], 'trophy'],
+  [['label','store','shop','brand','retail'], 'store'],
+]
+
 // ── State ─────────────────────────────────────────────────────────────────────
 
 const state = {
@@ -49,6 +75,52 @@ function esc(str) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
+}
+
+// ── Icon picker ───────────────────────────────────────────────────────────────
+
+function suggestIcon(name) {
+  const lower = name.toLowerCase()
+  for (const [terms, slug] of ICON_SUGGESTIONS) {
+    if (terms.some(t => lower.includes(t))) return slug
+  }
+  return ''
+}
+
+function iconPickerHtml(selectedIcon) {
+  const sel = selectedIcon || ''
+  const tiles = ICONS.map(slug => `
+    <button type="button" class="icon-tile${slug === sel ? ' icon-tile--selected' : ''}"
+            data-action="select-icon" data-slug="${slug}" title="${slug}">
+      <img src="/assets/icons/lucide/${slug}.svg" width="18" height="18" alt="">
+      <span>${slug}</span>
+    </button>
+  `).join('')
+
+  const triggerInner = sel
+    ? `<img src="/assets/icons/lucide/${esc(sel)}.svg" width="14" height="14" alt=""> <span>${esc(sel)}</span>`
+    : '<span>None</span>'
+
+  return `
+    <div class="form-group icon-picker-wrap">
+      <label>Icon <span class="field-optional">(optional)</span></label>
+      <input type="hidden" name="icon" value="${esc(sel)}">
+      <button type="button" class="icon-picker-trigger" data-action="toggle-icon-picker">
+        ${triggerInner} <span class="icon-picker-caret">▾</span>
+      </button>
+      <div class="icon-picker-popover" hidden>
+        <input type="text" class="icon-picker-search" placeholder="Search icons…" autocomplete="off">
+        <div class="icon-picker-grid">
+          <button type="button" class="icon-tile icon-tile--none${!sel ? ' icon-tile--selected' : ''}"
+                  data-action="select-icon" data-slug="" title="None">
+            <span class="icon-tile-dash">—</span>
+            <span>none</span>
+          </button>
+          ${tiles}
+        </div>
+      </div>
+    </div>
+  `
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
@@ -103,6 +175,7 @@ function renderEntityTypes() {
       <div class="type-card">
         <div class="type-card__header">
           <div class="type-card__title">
+            ${et.icon ? `<img src="/assets/icons/lucide/${esc(et.icon)}.svg" width="16" height="16" class="et-card-icon" alt="">` : ''}
             <strong>${esc(et.display_name)}</strong>
             <code>${esc(et.name)}</code>
           </div>
@@ -238,6 +311,7 @@ function newEntityTypeForm() {
           <input id="net-display" name="display_name" required placeholder="e.g. Person">
         </div>
       </div>
+      ${iconPickerHtml('')}
       <div id="new-et-error"></div>
       <div class="form-actions">
         <button class="btn btn--primary btn--sm" type="submit">Create</button>
@@ -261,6 +335,7 @@ function editEntityTypeForm(et) {
           <input name="display_name" required value="${esc(et.display_name)}">
         </div>
       </div>
+      ${iconPickerHtml(et.icon ?? '')}
       <div id="edit-et-error"></div>
       <div class="form-actions">
         <button class="btn btn--primary btn--sm" type="submit">Save</button>
@@ -421,9 +496,46 @@ async function loadFields(typeId, parentType) {
 // ── Event delegation ──────────────────────────────────────────────────────────
 
 document.addEventListener('click', async (e) => {
+  // Close any open icon picker when clicking outside a picker wrap
+  if (!e.target.closest('.icon-picker-wrap')) {
+    document.querySelectorAll('.icon-picker-popover:not([hidden])').forEach(p => { p.hidden = true })
+  }
+
   const btn = e.target.closest('[data-action]')
   if (!btn) return
   const action = btn.dataset.action
+
+  if (action === 'toggle-icon-picker') {
+    const wrap = btn.closest('.icon-picker-wrap')
+    const popover = wrap.querySelector('.icon-picker-popover')
+    const wasOpen = !popover.hidden
+    document.querySelectorAll('.icon-picker-popover:not([hidden])').forEach(p => { p.hidden = true })
+    if (!wasOpen) {
+      const rect = btn.getBoundingClientRect()
+      popover.style.top  = (rect.bottom + 4) + 'px'
+      popover.style.left = rect.left + 'px'
+      popover.hidden = false
+      popover.querySelector('.icon-picker-search')?.focus()
+    }
+    return
+  }
+
+  if (action === 'select-icon') {
+    const wrap = btn.closest('.icon-picker-wrap')
+    const slug = btn.dataset.slug
+    const hiddenInput = wrap.querySelector('input[name="icon"]')
+    hiddenInput.value = slug
+    hiddenInput.dataset.userSelected = '1'
+    const trigger = wrap.querySelector('.icon-picker-trigger')
+    trigger.innerHTML = slug
+      ? `<img src="/assets/icons/lucide/${esc(slug)}.svg" width="14" height="14" alt=""> <span>${esc(slug)}</span> <span class="icon-picker-caret">▾</span>`
+      : '<span>None</span> <span class="icon-picker-caret">▾</span>'
+    wrap.querySelectorAll('.icon-tile').forEach(t =>
+      t.classList.toggle('icon-tile--selected', t.dataset.slug === slug)
+    )
+    wrap.querySelector('.icon-picker-popover').hidden = true
+    return
+  }
 
   if (action === 'select-store') {
     await loadStore(btn.dataset.id)
@@ -577,6 +689,7 @@ document.addEventListener('submit', async (e) => {
       const et = await api.post(`/api/stores/${state.storeId}/entity-types`, {
         name: data.name,
         display_name: data.display_name,
+        icon: data.icon || undefined,
       })
       state.entityTypes.push(et)
       state.expandedId = null
@@ -592,6 +705,7 @@ document.addEventListener('submit', async (e) => {
       const updated = await api.put(`/api/entity-types/${form.dataset.id}`, {
         name: data.name,
         display_name: data.display_name,
+        icon: data.icon || null,
       })
       state.entityTypes = state.entityTypes.map(x => x.id === updated.id ? updated : x)
       setHtml('schema-content', renderSchemaContent())
@@ -650,6 +764,35 @@ document.addEventListener('submit', async (e) => {
       showError(`new-field-error-${typeId}`, err.message)
     }
     return
+  }
+})
+
+document.addEventListener('input', (e) => {
+  // Filter icon tiles by search query
+  if (e.target.matches('.icon-picker-search')) {
+    const q = e.target.value.toLowerCase()
+    const grid = e.target.closest('.icon-picker-popover').querySelector('.icon-picker-grid')
+    grid.querySelectorAll('.icon-tile').forEach(tile => {
+      tile.hidden = q ? !tile.dataset.slug.includes(q) : false
+    })
+    return
+  }
+
+  // Auto-suggest icon when typing the internal name in the new entity type form
+  if (e.target.matches('#net-name')) {
+    const wrap = e.target.closest('form')?.querySelector('.icon-picker-wrap')
+    if (!wrap) return
+    const hiddenInput = wrap.querySelector('input[name="icon"]')
+    if (hiddenInput.dataset.userSelected) return
+    const suggested = suggestIcon(e.target.value)
+    hiddenInput.value = suggested
+    const trigger = wrap.querySelector('.icon-picker-trigger')
+    trigger.innerHTML = suggested
+      ? `<img src="/assets/icons/lucide/${suggested}.svg" width="14" height="14" alt=""> <span>${suggested}</span> <span class="icon-picker-caret">▾</span>`
+      : '<span>None</span> <span class="icon-picker-caret">▾</span>'
+    wrap.querySelectorAll('.icon-tile').forEach(t =>
+      t.classList.toggle('icon-tile--selected', t.dataset.slug === suggested)
+    )
   }
 })
 
