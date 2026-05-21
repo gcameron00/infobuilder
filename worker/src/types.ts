@@ -15,6 +15,7 @@ export interface EntityType {
   store_id: string;
   name: string;
   display_name: string;
+  icon: string | null;
 }
 
 export interface RelationshipType {

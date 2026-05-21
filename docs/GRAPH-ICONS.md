@@ -1,6 +1,6 @@
 # Icons in the graph view — design proposal
 
-> Status: **proposal — not implemented**. Tracked under issue [#3](https://github.com/gcameron00/infobuilder/issues/3).
+> Status: **Phase A implemented** (migration + API). Phases B and C pending. Tracked under issue [#3](https://github.com/gcameron00/infobuilder/issues/3).
 
 ## 1. Goal
 
@@ -64,7 +64,54 @@ Two options for getting the icons into the page:
 - **CDN** (e.g. `unpkg.com/lucide-static@latest/icons/<name>.svg`): zero repo footprint, no build step (matches our "no build" stance in `README.md`), but adds a third-party runtime dependency on top of Cytoscape's CDN.
 - **Vendored subset**: ship only the ~50 icons we need under `assets/icons/`. Tighter (no extra origin to trust, works offline), but someone has to curate the subset when new entity types appear.
 
-**Recommendation: vendor a curated subset under `assets/icons/lucide/`**, sized at a known viewBox (24×24), no fill — only `stroke="currentColor"` so the icon recolours via CSS. We already vendor `favicon.svg` the same way. Start with ~40 glyphs covering the obvious concepts (see §5.2). Adding a new icon is a single committed SVG file.
+**Recommendation: vendor a curated subset under `assets/icons/lucide/`**, sized at a known viewBox (24×24), no fill — only `stroke="currentColor"` so the icon recolours via CSS. We already vendor `favicon.svg` the same way. Adding a new icon is a single committed SVG file.
+
+### 4.2 Starting icon set (40 icons)
+
+The set below covers the auto-suggestion vocabulary (§5.2) plus the most common entity-type concepts encountered across typical stores. It is the authoritative starting list for Phase B vendoring.
+
+| Slug | Concept |
+|---|---|
+| `user` | person, contact, member |
+| `users` | group, band, team |
+| `building-2` | company, organisation, office |
+| `map-pin` | place, location, address |
+| `calendar` | event, meeting, appointment |
+| `clock` | era, period, timeline |
+| `music` | album, song, track, sound |
+| `book-open` | book, article, publication |
+| `tag` | genre, category, topic |
+| `film` | movie, show, recording |
+| `globe` | country, world, language |
+| `landmark` | monument, institution |
+| `star` | award, favourite, rating |
+| `briefcase` | project, work, career |
+| `layers` | stack, level, hierarchy |
+| `link` | connection, relation, url |
+| `hash` | number, id, reference |
+| `image` | artwork, photo, visual |
+| `newspaper` | news, press, article |
+| `graduation-cap` | school, education, university |
+| `trophy` | achievement, record, prize |
+| `heart` | interest, favourite, like |
+| `palette` | art, design, style |
+| `tv` | show, programme, channel |
+| `mail` | email, letter, message |
+| `folder` | collection, archive, group |
+| `flag` | country, nationality, language |
+| `home` | home, residence, property |
+| `leaf` | plant, nature, species |
+| `shield` | law, security, protection |
+| `disc` | record, release, vinyl |
+| `microscope` | science, research, experiment |
+| `cpu` | technology, software, system |
+| `activity` | metric, data, chart |
+| `compass` | navigation, exploration |
+| `mountain` | geography, terrain, place |
+| `flame` | trend, event, highlight |
+| `scroll` | document, manuscript, text |
+| `store` | shop, retail, brand |
+| `circle` | fallback / no-icon placeholder |
 
 ## 5. Auto-selection vs user selection
 
@@ -132,13 +179,13 @@ Cytoscape nodes support a `background-image` style with `background-fit`, `backg
 - Set `background-image: url(...)` on the node, with `background-fit: 'contain'`, `background-clip: 'none'`, and `background-image-opacity: 1`.
 - Keep the background colour (today's `etColor()`) as the **fill behind** the icon. With a white-stroke icon on a coloured fill, the type colour still does the macro-grouping work; the icon does the micro-identification.
 - Increase node size from `30 × 30` to `36 × 36` so the icon at ~18 px inside a coloured circle is legible without crowding labels (`assets/js/graph.js:111`–`112`).
-- Use Lucide's `stroke="currentColor"` SVGs and pre-process each file once at vendoring time to set `stroke="#ffffff"` (or fetch them through a tiny build-time step). Plain string substitution keeps the no-build-step ethos.
+- Vendor all SVGs with `stroke="currentColor"` unchanged. At graph init time, fetch each needed icon once, then generate **two data URIs** from the raw SVG text: one with `stroke="#ffffff"` (for use as the node background image on the coloured fill) and one with the type's palette colour substituted in (for the filter-sidebar chip). Store both in the in-memory slug map. No pre-processing step, no duplicate files. The fetch burst is ~40 small same-origin requests, completing in a single round-trip on HTTP/2.
 
 The Cytoscape style block grows by ~5 lines; no new library is needed.
 
 ### 7.1 Filter chips, info panel, focus mode
 
-The colour-dot in the filter sidebar (`.graph-color-dot`, `assets/css/app.css:847`) should also pick up the icon when one is set — same SVG, smaller (12 px), tinted to the type colour for contrast on the white panel. This keeps the legend in sync with the graph and gives the filter UI a glance-readability boost.
+The colour-dot in the filter sidebar (`.graph-color-dot`, `assets/css/app.css:847`) should also pick up the icon when one is set — same SVG source file, smaller (12 px), rendered using the colour-tinted data URI (the second of the two URIs generated at init time — see §7). This keeps the legend in sync with the graph and gives the filter UI a glance-readability boost.
 
 ## 8. UI for selection (schema editor)
 
@@ -152,6 +199,8 @@ In the entity-type create/edit form in `/app/`:
    - A "None" tile at the top for the colour-only behaviour.
 4. Selection updates the button and closes the popover.
 5. On form submit, the slug is `PUT` to the entity-type endpoint.
+
+**Interaction model (Phase C):** click-only. Keyboard navigation (arrow keys within grid, Enter to select, Escape to close) is a follow-on task — deferred to avoid the substantial vanilla-JS grid-navigation work in the initial implementation.
 
 When a *new* entity type is being created, the auto-suggestion (§5.2) pre-populates the button; the user can still change it before saving.
 
@@ -169,10 +218,12 @@ Concretely:
 
 Cleanly splittable into three commits, each independently useful:
 
-**Phase A — schema and storage**
-- DB migration adding `entity_types.icon`.
-- API: read/write `icon` on entity types; include it in the graph endpoint payload.
-- No UI change yet. Picker shows nothing.
+**Phase A — schema and storage** ✅
+- `worker/migrations/0003_entity_type_icon.sql` — `ALTER TABLE entity_types ADD COLUMN icon TEXT`.
+- `POST /api/stores/:storeId/entity-types` and `PUT /api/entity-types/:id` accept optional `icon` (slug, validated `/^[a-z0-9-]{1,40}$/`, stored as NULL if absent/empty).
+- `GET /api/stores/:storeId/graph` already uses `SELECT *` on entity types, so `icon` is included automatically once the migration is applied.
+- Run `npm run migrate:local` and `npm run migrate:remote` to apply.
+- No UI change. Picker shows nothing yet.
 
 **Phase B — vendored icon set and graph rendering**
 - Add ~40 SVGs under `assets/icons/lucide/`.
@@ -193,8 +244,11 @@ Each phase is shippable. Phase A on its own is invisible to users (no UI). Phase
 - **Icon weight / variants.** SF Symbols' Thin/Light/Regular/Bold weights have no equivalent in Lucide's single-weight set. Skip until we have a concrete need.
 - **A native SwiftUI client.** Mentioned in §6.3 only to explain why the slug indirection exists — not part of this proposal.
 
-## 12. Open questions
+## 12. Resolved decisions
 
-- Is the ~40-icon starting set wide enough, or should we vendor the full Lucide bundle (~700 KB unminified, much smaller gzipped)? Trade-off: more flexibility for new entity types vs. asset size.
-- Should the slug vocabulary be **forced** to a SF-Symbols-aligned namespace (e.g. validate against a known list on save), or left free? Current proposal leaves it free; the cost is occasional drift.
-- Do we want a per-store icon override registry — i.e. one store could redefine what `person` resolves to — or is one global mapping per client enough? Current proposal: one global mapping per client. Stores remain icon-agnostic.
+- **Icon set size:** vendor the curated 40-icon set from §4.2. Not the full Lucide bundle. New icons are added as single SVG commits when a concrete need arises.
+- **Slug vocabulary:** left free — validated as `/^[a-z0-9-]{1,40}$/` but not checked against a closed list. Keeps the schema flexible for future clients (see §6.3).
+- **Per-store override registry:** not needed. One global slug → asset path map per client is sufficient; stores remain icon-agnostic.
+- **SVG colouring:** two data URIs generated at init time from a single `stroke="currentColor"` source file — one with `stroke="#ffffff"` for node backgrounds, one with the type's palette colour for sidebar chips. No pre-processing, no duplicate files. See §7.
+- **Cytoscape image loading:** fetch icons at graph init as same-origin requests; embed as `data:image/svg+xml;base64,...` URIs in the slug map. Avoids Cytoscape cross-origin image issues.
+- **Phase C keyboard navigation:** deferred. Click-only picker ships first.

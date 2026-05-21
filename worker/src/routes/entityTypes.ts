@@ -20,13 +20,18 @@ entityTypes.put('/:id', async (c) => {
     .bind(c.req.param('id')).first()
   if (!et) return c.json({ error: 'Not found' }, 404)
 
-  const body = await c.req.json<{ name?: string; display_name?: string }>()
+  const body = await c.req.json<{ name?: string; display_name?: string; icon?: string | null }>()
   if (!body.name?.trim()) return c.json({ error: 'name is required' }, 400)
   if (!body.display_name?.trim()) return c.json({ error: 'display_name is required' }, 400)
 
+  const icon = body.icon?.trim() || null
+  if (icon && !/^[a-z0-9-]{1,40}$/.test(icon)) {
+    return c.json({ error: 'icon must be a lowercase alphanumeric-and-hyphen slug, max 40 characters' }, 400)
+  }
+
   await c.env.DB.prepare(
-    'UPDATE entity_types SET name = ?, display_name = ? WHERE id = ?'
-  ).bind(body.name.trim(), body.display_name.trim(), c.req.param('id')).run()
+    'UPDATE entity_types SET name = ?, display_name = ?, icon = ? WHERE id = ?'
+  ).bind(body.name.trim(), body.display_name.trim(), icon, c.req.param('id')).run()
 
   const updated = await c.env.DB.prepare('SELECT * FROM entity_types WHERE id = ?')
     .bind(c.req.param('id')).first<EntityType>()
