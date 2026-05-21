@@ -218,13 +218,20 @@ function renderRelationships() {
         const relEtFields = etMap[r.related_entity_type_id]?.fields ?? null
         const relLabel    = entityLabel(r.related_entity_field_values, relEtFields)
         const relTypeName = etMap[r.related_entity_type_id]?.display_name ?? '?'
-        const hasFvs      = Object.keys(r.field_values ?? {}).length > 0
+        const fvEntries   = Object.entries(r.field_values ?? {}).filter(([, v]) => v !== '' && v !== null && v !== undefined)
+        const fvHtml      = fvEntries.length > 0
+          ? `<dl class="rel-field-values">${fvEntries.map(([k, v]) =>
+              `<div class="rel-fv-pair"><dt>${esc(k)}</dt><dd>${esc(String(v))}</dd></div>`
+            ).join('')}</dl>`
+          : ''
         return `
           <div class="rel-row">
-            <a class="rel-entity-link" href="/app/entity/?id=${esc(r.related_entity_id)}">${esc(relLabel)}</a>
-            <span class="rel-type-badge">${esc(relTypeName)}</span>
-            ${hasFvs ? '<span class="rel-has-data" title="Has relationship data">●</span>' : ''}
-            <button class="btn-icon btn-icon--danger" data-action="delete-rel" data-id="${esc(r.id)}">×</button>
+            <div class="rel-row-top">
+              <a class="rel-entity-link" href="/app/entity/?id=${esc(r.related_entity_id)}">${esc(relLabel)}</a>
+              <span class="rel-type-badge">${esc(relTypeName)}</span>
+              <button class="btn-icon btn-icon--danger" data-action="delete-rel" data-id="${esc(r.id)}">×</button>
+            </div>
+            ${fvHtml}
           </div>
         `
       }).join('')
