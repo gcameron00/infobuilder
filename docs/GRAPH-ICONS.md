@@ -1,6 +1,6 @@
 # Icons in the graph view — design proposal
 
-> Status: **Phase A implemented** (migration + API). Phases B and C pending. Tracked under issue [#3](https://github.com/gcameron00/infobuilder/issues/3).
+> Status: **Phase B implemented** (icons vendored, graph rendering, sidebar chips). Phase C pending. Tracked under issue [#3](https://github.com/gcameron00/infobuilder/issues/3).
 
 ## 1. Goal
 
@@ -225,11 +225,11 @@ Cleanly splittable into three commits, each independently useful:
 - Run `npm run migrate:local` and `npm run migrate:remote` to apply.
 - No UI change. Picker shows nothing yet.
 
-**Phase B — vendored icon set and graph rendering**
-- Add ~40 SVGs under `assets/icons/lucide/`.
-- Add a slug → asset path map in the frontend.
-- Cytoscape node style picks up `background-image` when the type has an icon set; falls back to today's plain dot otherwise.
-- Filter sidebar swatches optionally show the icon.
+**Phase B — vendored icon set and graph rendering** ✅
+- 40 SVGs vendored under `assets/icons/lucide/` (ISC licence, `stroke="currentColor"` unchanged).
+- `loadIcons(entityTypes)` in `assets/js/graph.js` fetches each needed slug once at init, generates two data URIs per slug: white-stroke for node backgrounds, palette-coloured for sidebar chips. Stored in `iconData` map.
+- Cytoscape node style uses `background-image: data(iconUri)` on the `node[iconUri != ""]` selector; size increased 30×30 → 36×36.
+- Filter sidebar: entity types with an icon render a `.graph-icon-chip` (rounded square, tinted background, coloured-stroke icon at 12 px) instead of the plain `.graph-color-dot`.
 
 **Phase C — icon picker UI in the schema editor**
 - Picker popover with search.

@@ -5,6 +5,8 @@ const API = window.location.hostname === 'localhost'
   ? 'http://localhost:8787'
   : ''
 
+const ICON_BASE_PATH = '/assets/icons/lucide/'
+
 // ── State ─────────────────────────────────────────────────────────────────────
 
 const state = {
@@ -22,6 +24,8 @@ const PALETTE = [
   '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6',
   '#f97316', '#06b6d4', '#84cc16', '#a855f7',
 ]
+
+const iconData = {} // slug → { svgText, whiteUri }
 
 // ── API helpers ───────────────────────────────────────────────────────────────
 
@@ -62,17 +66,43 @@ function etName(etId) {
   return state.data.entityTypes.find(et => et.id === etId)?.display_name ?? '?'
 }
 
+function svgToUri(svg) {
+  return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)))
+}
+
+// ── Icons ─────────────────────────────────────────────────────────────────────
+
+async function loadIcons(entityTypes) {
+  const slugs = [...new Set(entityTypes.map(et => et.icon).filter(Boolean))]
+  await Promise.all(slugs.map(async slug => {
+    try {
+      const res = await fetch(`${ICON_BASE_PATH}${slug}.svg`)
+      if (!res.ok) return
+      const svg = await res.text()
+      iconData[slug] = {
+        svgText:  svg,
+        whiteUri: svgToUri(svg.replace(/stroke="currentColor"/g, 'stroke="#ffffff"')),
+      }
+    } catch {}
+  }))
+}
+
 // ── Graph ─────────────────────────────────────────────────────────────────────
 
 function buildElements() {
-  const nodes = state.data.entities.map(e => ({
-    data: {
-      id:    e.id,
-      label: entityLabel(e),
-      color: etColor(e.entity_type_id),
-      etId:  e.entity_type_id,
-    },
-  }))
+  const nodes = state.data.entities.map(e => {
+    const et      = state.data.entityTypes.find(x => x.id === e.entity_type_id)
+    const iconUri = (et?.icon && iconData[et.icon]?.whiteUri) || ''
+    return {
+      data: {
+        id:      e.id,
+        label:   entityLabel(e),
+        color:   etColor(e.entity_type_id),
+        etId:    e.entity_type_id,
+        iconUri,
+      },
+    }
+  })
 
   const edges = state.data.relationships.map(r => {
     const rt = state.data.relationshipTypes.find(x => x.id === r.relationship_type_id)
@@ -109,11 +139,20 @@ function initGraph() {
           'text-margin-y':       6,
           'text-max-width':      90,
           'text-wrap':           'ellipsis',
-          'width':               30,
-          'height':              30,
+          'width':               36,
+          'height':              36,
           'color':               '#374151',
           'cursor':              'pointer',
           'border-width':        0,
+        },
+      },
+      {
+        selector: 'node[iconUri != ""]',
+        style: {
+          'background-image':         'data(iconUri)',
+          'background-fit':           'contain',
+          'background-image-opacity': 1,
+          'background-clip':          'none',
         },
       },
       {
@@ -252,10 +291,18 @@ function renderControls() {
   const etRows = state.data.entityTypes.map((et, i) => {
     const color   = PALETTE[i % PALETTE.length]
     const checked = !state.hiddenEtIds.has(et.id)
+    let dotHtml
+    if (et.icon && iconData[et.icon]) {
+      const coloredSvg = iconData[et.icon].svgText.replace(/stroke="currentColor"/g, `stroke="${color}"`)
+      const coloredUri = svgToUri(coloredSvg)
+      dotHtml = `<span class="graph-icon-chip" style="background:${color}20"><img src="${coloredUri}" width="12" height="12" alt=""></span>`
+    } else {
+      dotHtml = `<span class="graph-color-dot" style="background:${color}"></span>`
+    }
     return `
       <label class="graph-filter-row">
         <input type="checkbox" data-filter="et" data-id="${esc(et.id)}" ${checked ? 'checked' : ''}>
-        <span class="graph-color-dot" style="background:${color}"></span>
+        ${dotHtml}
         <span>${esc(et.display_name)}</span>
       </label>
     `
@@ -386,6 +433,7 @@ async function init() {
       return
     }
 
+    await loadIcons(graphData.entityTypes)
     initGraph()
     renderControls()
   } catch (err) {
