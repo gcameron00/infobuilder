@@ -3,7 +3,7 @@
 A personal information management application built around a **schema-guided, user-extensible graph model**. Create and manage multiple independent information stores — each store has its own entity types, relationship types, and data — and browse them through multiple views: document, flat/table, graph, and timeline.
 
 Info Builder is the evolution of [Infomanager](https://github.com/gcameron00/Infomanager). Where Infomanager was a single contacts/knowledge store, Info Builder generalises the concept: one application, many stores, any domain.
-
+ 
 ---
 
 ## What it does
