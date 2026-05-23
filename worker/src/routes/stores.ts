@@ -344,31 +344,24 @@ stores.get('/:storeId/export', async (c) => {
   })
 })
 
-// ── Import ────────────────────────────────────────────────────────────────────
+// ── Import (creates a new store from a version-1 export file) ────────────────
 
-stores.post('/:storeId/import', async (c) => {
-  const storeId = c.req.param('storeId')
-  const store = await c.env.DB.prepare('SELECT id FROM stores WHERE id = ?').bind(storeId).first()
-  if (!store) return c.json({ error: 'Store not found' }, 404)
-
+stores.post('/import', async (c) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const body = await c.req.json<any>()
   if (!body || body.version !== 1) return c.json({ error: 'Invalid format — expected a version 1 export file' }, 400)
+  if (!body.store?.name?.trim()) return c.json({ error: 'Export file is missing store name' }, 400)
+
+  // Create a fresh store so there is never an entity-type name conflict
+  const storeId = crypto.randomUUID()
+  await c.env.DB.prepare(
+    'INSERT INTO stores (id, name, description) VALUES (?, ?, ?)'
+  ).bind(storeId, body.store.name.trim(), body.store.description ?? null).run()
 
   const importETs:    any[] = body.entityTypes    ?? []
   const importRTs:    any[] = body.relationshipTypes ?? []
   const importEnts:   any[] = body.entities        ?? []
   const importRels:   any[] = body.relationships   ?? []
-
-  // Conflict check — abort before touching anything
-  const { results: existingETs } = await c.env.DB.prepare(
-    'SELECT name FROM entity_types WHERE store_id = ?'
-  ).bind(storeId).all<{ name: string }>()
-  const existingNames = new Set(existingETs.map(et => et.name))
-  const conflicts = importETs.map((et: any) => et.name as string).filter(n => existingNames.has(n))
-  if (conflicts.length > 0) {
-    return c.json({ error: `Conflict: entity type(s) already exist: ${conflicts.join(', ')}` }, 409)
-  }
 
   // Insert entity types + their fields
   const etNameToId: Record<string, string> = {}
@@ -427,7 +420,8 @@ stores.post('/:storeId/import', async (c) => {
     ).bind(crypto.randomUUID(), rtId, srcId, tgtId, JSON.stringify(r.field_values ?? {})).run()
   }
 
-  return c.json({ ok: true })
+  const newStore = await c.env.DB.prepare('SELECT * FROM stores WHERE id = ?').bind(storeId).first<Store>()
+  return c.json(newStore, 201)
 })
 
 export default stores

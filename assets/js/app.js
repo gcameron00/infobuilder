@@ -147,11 +147,13 @@ function renderSidebar() {
         </div>
         <div style="display:flex;gap:var(--space-2)">
           <button class="btn btn--ghost btn--sm" data-action="export-store" style="flex:1">Export</button>
-          <button class="btn btn--ghost btn--sm" data-action="import-store" style="flex:1">Import</button>
+          <button class="btn btn--sm btn--danger-outline" data-action="delete-store" style="flex:1">Delete</button>
         </div>
-        <button class="btn btn--sm btn--danger-outline" data-action="delete-store" style="width:100%">Delete store</button>
       ` : ''}
-      <button class="btn btn--ghost btn--sm" data-action="show-new-store">+ New store</button>
+      <div style="display:flex;gap:var(--space-2)">
+        <button class="btn btn--ghost btn--sm" data-action="show-new-store" style="flex:1">+ New store</button>
+        <button class="btn btn--ghost btn--sm" data-action="import-store" style="flex:1">Import</button>
+      </div>
       <input type="file" id="import-file-input" accept=".json" style="display:none">
     </div>
   `
@@ -821,11 +823,12 @@ document.addEventListener('change', async (e) => {
   if (!file) return
   e.target.value = ''
   try {
-    const json = JSON.parse(await file.text())
-    await api.post(`/api/stores/${state.storeId}/import`, json)
-    await loadStore(state.storeId)
+    const json     = JSON.parse(await file.text())
+    const newStore = await api.post('/api/stores/import', json)
+    state.stores.push(newStore)
+    await loadStore(newStore.id)
+    setHtml('sidebar', renderSidebar())
     setHtml('schema-content', renderSchemaContent())
-    alert('Import successful.')
   } catch (err) {
     alert(`Import failed: ${err.message}`)
   }
