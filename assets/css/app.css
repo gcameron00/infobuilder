@@ -15,6 +15,7 @@ body.app-page .site-footer {
 .app-main {
   display: grid;
   grid-template-columns: 14rem 1fr;
+  grid-template-rows: 1fr;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -86,8 +87,7 @@ body.app-page .site-footer {
 .schema-editor {
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 .tab-bar {
@@ -123,6 +123,7 @@ body.app-page .site-footer {
 
 .tab-content {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: var(--space-6);
 }
