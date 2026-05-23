@@ -177,7 +177,7 @@ function renderPage() {
       <div class="entity-main">
         <nav class="entity-breadcrumb">
           <a href="/app/">App</a><span class="breadcrumb-sep">›</span>
-          <span>${esc(state.store?.name ?? '')}</span><span class="breadcrumb-sep">›</span>
+          <a href="/app/?store=${esc(state.storeId ?? '')}">${esc(state.store?.name ?? '')}</a><span class="breadcrumb-sep">›</span>
           <span>Timeline</span>
         </nav>
         <div class="empty-state" style="text-align:left;padding:0">
@@ -199,7 +199,7 @@ function renderPage() {
     <div class="timeline-toolbar">
       <nav class="entity-breadcrumb" style="margin:0">
         <a href="/app/">App</a><span class="breadcrumb-sep">›</span>
-        <span>${esc(state.store?.name ?? '')}</span><span class="breadcrumb-sep">›</span>
+        <a href="/app/?store=${esc(state.storeId ?? '')}">${esc(state.store?.name ?? '')}</a><span class="breadcrumb-sep">›</span>
         <span>Timeline</span>
       </nav>
       <label class="timeline-zoom-label">

@@ -137,7 +137,9 @@ function renderContent() {
     <nav class="entity-breadcrumb" aria-label="Breadcrumb">
       <a href="/app/">App</a>
       <span class="breadcrumb-sep">›</span>
-      <span>${esc(state.store?.name ?? '')}</span>
+      ${state.store?.id
+        ? `<a href="/app/?store=${esc(state.store.id)}">${esc(state.store?.name ?? '')}</a>`
+        : `<span>${esc(state.store?.name ?? '')}</span>`}
       <span class="breadcrumb-sep">›</span>
       <span>${esc(state.entityType?.display_name ?? '')}</span>
     </nav>

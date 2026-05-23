@@ -327,7 +327,7 @@ function renderControls() {
     <nav class="entity-breadcrumb graph-breadcrumb" aria-label="Breadcrumb">
       <a href="/app/">App</a>
       <span class="breadcrumb-sep">›</span>
-      <span>${esc(state.store?.name ?? '')}</span>
+      <a href="/app/?store=${esc(state.storeId ?? '')}">${esc(state.store?.name ?? '')}</a>
       <span class="breadcrumb-sep">›</span>
       <span>Graph</span>
     </nav>
@@ -426,7 +426,7 @@ async function init() {
 
     if (graphData.entities.length === 0) {
       panel.innerHTML = `<div style="padding:var(--space-4)">
-        <nav class="entity-breadcrumb graph-breadcrumb"><a href="/app/">App</a><span class="breadcrumb-sep">›</span><span>${esc(store.name)}</span></nav>
+        <nav class="entity-breadcrumb graph-breadcrumb"><a href="/app/">App</a><span class="breadcrumb-sep">›</span><a href="/app/?store=${esc(storeId)}">${esc(store.name)}</a></nav>
         <p class="entity-empty">No entities in this store yet.</p>
         <a class="btn btn--ghost btn--sm" href="/app/">← Back</a>
       </div>`
