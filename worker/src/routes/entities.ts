@@ -33,7 +33,11 @@ entities.delete('/:id', async (c) => {
     .bind(c.req.param('id')).first()
   if (!entity) return c.json({ error: 'Not found' }, 404)
 
-  await c.env.DB.prepare('DELETE FROM entities WHERE id = ?').bind(c.req.param('id')).run()
+  const id = c.req.param('id')
+  await c.env.DB.prepare(
+    'DELETE FROM relationships WHERE source_entity_id = ? OR target_entity_id = ?'
+  ).bind(id, id).run()
+  await c.env.DB.prepare('DELETE FROM entities WHERE id = ?').bind(id).run()
   return c.json({ ok: true })
 })
 

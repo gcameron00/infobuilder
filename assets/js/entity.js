@@ -99,13 +99,16 @@ function fieldInput(f, currentVal) {
 // ── Rendering ─────────────────────────────────────────────────────────────────
 
 function renderBreadcrumb() {
+  const storeId  = state.storeId ?? ''
   const storeName = esc(state.store?.name ?? '')
   const typeName  = esc(state.entityType?.display_name ?? '')
   return `
     <nav class="entity-breadcrumb" aria-label="Breadcrumb">
       <a href="/app/">App</a>
       <span class="breadcrumb-sep">›</span>
-      <span>${storeName}</span>
+      ${storeId
+        ? `<a href="/app/?store=${esc(storeId)}">${storeName}</a>`
+        : `<span>${storeName}</span>`}
       ${typeName ? `<span class="breadcrumb-sep">›</span><span>${typeName}</span>` : ''}
     </nav>
   `

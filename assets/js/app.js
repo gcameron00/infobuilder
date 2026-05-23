@@ -145,8 +145,14 @@ function renderSidebar() {
           <a class="btn btn--ghost btn--sm" href="/app/graph/?store=${state.storeId}" style="flex:1;text-align:center;text-decoration:none">Graph</a>
           <a class="btn btn--ghost btn--sm" href="/app/timeline/?store=${state.storeId}" style="flex:1;text-align:center;text-decoration:none">Timeline</a>
         </div>
+        <div style="display:flex;gap:var(--space-2)">
+          <button class="btn btn--ghost btn--sm" data-action="export-store" style="flex:1">Export</button>
+          <button class="btn btn--ghost btn--sm" data-action="import-store" style="flex:1">Import</button>
+        </div>
+        <button class="btn btn--sm btn--danger-outline" data-action="delete-store" style="width:100%">Delete store</button>
       ` : ''}
       <button class="btn btn--ghost btn--sm" data-action="show-new-store">+ New store</button>
+      <input type="file" id="import-file-input" accept=".json" style="display:none">
     </div>
   `
 }
@@ -537,6 +543,48 @@ document.addEventListener('click', async (e) => {
     return
   }
 
+  if (action === 'delete-store') {
+    const store = state.stores.find(s => s.id === state.storeId)
+    if (!store) return
+    if (!confirm(`Delete "${store.name}"?\n\nThis permanently removes all entity types, entities, and relationships. This cannot be undone.`)) return
+    try {
+      await api.del(`/api/stores/${state.storeId}`)
+      state.stores = state.stores.filter(s => s.id !== state.storeId)
+      state.storeId = null
+      state.entityTypes = []
+      state.relationshipTypes = []
+      if (state.stores.length > 0) await loadStore(state.stores[0].id)
+      setHtml('sidebar', renderSidebar())
+      setHtml('schema-content', renderSchemaContent())
+    } catch (err) {
+      alert(`Error: ${err.message}`)
+    }
+    return
+  }
+
+  if (action === 'export-store') {
+    try {
+      const data  = await api.get(`/api/stores/${state.storeId}/export`)
+      const blob  = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+      const url   = URL.createObjectURL(blob)
+      const a     = document.createElement('a')
+      const name  = (state.stores.find(s => s.id === state.storeId)?.name ?? 'store')
+        .toLowerCase().replace(/\s+/g, '-')
+      a.href     = url
+      a.download = `${name}-export.json`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      alert(`Export failed: ${err.message}`)
+    }
+    return
+  }
+
+  if (action === 'import-store') {
+    document.getElementById('import-file-input')?.click()
+    return
+  }
+
   if (action === 'select-store') {
     await loadStore(btn.dataset.id)
     setHtml('schema-content', renderSchemaContent())
@@ -767,6 +815,22 @@ document.addEventListener('submit', async (e) => {
   }
 })
 
+document.addEventListener('change', async (e) => {
+  if (e.target.id !== 'import-file-input') return
+  const file = e.target.files?.[0]
+  if (!file) return
+  e.target.value = ''
+  try {
+    const json = JSON.parse(await file.text())
+    await api.post(`/api/stores/${state.storeId}/import`, json)
+    await loadStore(state.storeId)
+    setHtml('schema-content', renderSchemaContent())
+    alert('Import successful.')
+  } catch (err) {
+    alert(`Import failed: ${err.message}`)
+  }
+})
+
 document.addEventListener('input', (e) => {
   // Filter icon tiles by search query
   if (e.target.matches('.icon-picker-search')) {
@@ -800,8 +864,13 @@ document.addEventListener('input', (e) => {
 
 async function init() {
   try {
+    const params     = new URLSearchParams(window.location.search)
+    const storeParam = params.get('store')
     state.stores = await api.get('/api/stores')
-    if (state.stores.length > 0) await loadStore(state.stores[0].id)
+    const initial = storeParam
+      ? (state.stores.find(s => s.id === storeParam) ?? state.stores[0])
+      : state.stores[0]
+    if (initial) await loadStore(initial.id)
     setHtml('sidebar', renderSidebar())
     setHtml('schema-content', renderSchemaContent())
   } catch (err) {

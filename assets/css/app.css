@@ -86,7 +86,8 @@ body.app-page .site-footer {
 .schema-editor {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .tab-bar {
@@ -645,6 +646,17 @@ textarea.field-edit-input {
 .btn--danger:hover {
   background: #dc2626;
   border-color: #dc2626;
+}
+
+.btn--danger-outline {
+  background: transparent;
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.btn--danger-outline:hover {
+  background: #ef4444;
+  color: #fff;
 }
 
 /* ── Entities table view ──────────────────────────────────────────────────── */
@@ -1219,6 +1231,10 @@ body.timeline-page .site-header {
   padding-left: var(--space-2);
   color: var(--color-muted);
   font-size: 0.7rem;
+}
+
+.icon-picker-popover[hidden] {
+  display: none !important;
 }
 
 .icon-picker-popover {
