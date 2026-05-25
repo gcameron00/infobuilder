@@ -215,7 +215,7 @@ stores.get('/:storeId/timeline', async (c) => {
     JOIN entity_types et ON et.id = fd.parent_type_id
     WHERE fd.parent_type = 'entity_type'
       AND et.store_id = ?
-      AND fd.data_type IN ('date', 'datetime')
+      AND fd.data_type IN ('date', 'datetime', 'partial_date')
     ORDER BY fd.parent_type_id, fd.display_order
   `).bind(storeId).all<FieldDefinition & { parent_type_id: string }>()
 

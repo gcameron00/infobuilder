@@ -49,8 +49,16 @@ function pxPerDay() {
   return state.basePxPerDay * state.zoom
 }
 
+function normalizePartialDate(str) {
+  if (!str) return str
+  const parts = str.split('-')
+  if (parts.length === 1) return `${str}-01-01`
+  if (parts.length === 2) return `${str}-01`
+  return str
+}
+
 function dateToX(dateStr) {
-  const ms = new Date(dateStr).getTime()
+  const ms = new Date(normalizePartialDate(dateStr)).getTime()
   return (ms - state.minDate) / 86400000 * pxPerDay()
 }
 
@@ -64,7 +72,7 @@ function computeDateRange() {
   let min = Infinity, max = -Infinity
   for (const lane of state.swimlanes) {
     for (const e of lane.entities) {
-      const t = new Date(e.field_values[lane.dateField]).getTime()
+      const t = new Date(normalizePartialDate(e.field_values[lane.dateField])).getTime()
       if (!isNaN(t)) { min = Math.min(min, t); max = Math.max(max, t) }
     }
   }
@@ -181,7 +189,7 @@ function renderPage() {
           <span>Timeline</span>
         </nav>
         <div class="empty-state" style="text-align:left;padding:0">
-          No entity types with <code>date</code> or <code>datetime</code> fields found in this store.
+          No entity types with <code>date</code>, <code>datetime</code>, or <code>partial_date</code> fields found in this store.
         </div>
       </div>
     `

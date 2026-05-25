@@ -42,6 +42,10 @@ function checkType(name: string, dataType: string, value: unknown): string | nul
     case 'datetime':
       if (isNaN(Date.parse(str))) return `${name} must be a valid datetime`
       break
+    case 'partial_date':
+      if (!/^\d{4}(-\d{2}(-\d{2})?)?$/.test(str))
+        return `${name} must be a partial date (YYYY, YYYY-MM, or YYYY-MM-DD)`
+      break
     case 'boolean':
       if (!['true', 'false', '1', '0'].includes(str.toLowerCase()))
         return `${name} must be a boolean`

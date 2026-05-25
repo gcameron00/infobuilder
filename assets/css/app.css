@@ -530,6 +530,29 @@ textarea.field-edit-input {
   cursor: pointer;
 }
 
+.partial-date-input {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.partial-date-input .field-edit-input {
+  flex: 0 0 auto;
+  min-width: 0;
+  text-align: center;
+}
+
+.partial-date-year  { width: 5rem; }
+.partial-date-month,
+.partial-date-day   { width: 3.5rem; }
+
+.partial-date-sep {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  user-select: none;
+}
+
 .required-mark {
   color: #ef4444;
 }

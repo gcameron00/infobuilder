@@ -69,11 +69,20 @@ function entityLabel(fvs, fields) {
   return '—'
 }
 
+function formatPartialDate(str) {
+  const parts = str.split('-')
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  if (parts.length === 2) return `${months[parseInt(parts[1], 10) - 1] ?? parts[1]} ${parts[0]}`
+  if (parts.length === 3) return `${parseInt(parts[2], 10)} ${months[parseInt(parts[1], 10) - 1] ?? parts[1]} ${parts[0]}`
+  return str
+}
+
 function formatValue(val, dataType) {
   if (val === null || val === undefined || val === '') {
     return '<span class="field-empty">—</span>'
   }
   if (dataType === 'boolean') return val ? 'Yes' : 'No'
+  if (dataType === 'partial_date') return esc(formatPartialDate(String(val)))
   if (dataType === 'url') {
     return `<a href="${esc(String(val))}" target="_blank" rel="noopener">${esc(String(val))}</a>`
   }
@@ -90,6 +99,19 @@ function fieldInput(f, currentVal) {
       <input type="checkbox" name="${esc(f.name)}" class="field-edit-checkbox" ${currentVal ? 'checked' : ''}>
       ${esc(f.name)}
     </label>`
+  }
+  if (f.data_type === 'partial_date') {
+    const parts = currentVal ? String(currentVal).split('-') : []
+    const y = esc(parts[0] ?? '')
+    const m = esc(parts[1] ? String(parseInt(parts[1], 10)) : '')
+    const d = esc(parts[2] ? String(parseInt(parts[2], 10)) : '')
+    return `<div class="partial-date-input">
+      <input type="number" name="${esc(f.name)}__year"  class="field-edit-input partial-date-year"  placeholder="YYYY" min="1" max="9999" value="${y}">
+      <span class="partial-date-sep">–</span>
+      <input type="number" name="${esc(f.name)}__month" class="field-edit-input partial-date-month" placeholder="MM"   min="1" max="12"   value="${m}">
+      <span class="partial-date-sep">–</span>
+      <input type="number" name="${esc(f.name)}__day"   class="field-edit-input partial-date-day"   placeholder="DD"   min="1" max="31"   value="${d}">
+    </div>`
   }
   const typeMap = { date: 'date', datetime: 'datetime-local', number: 'number', email: 'email', phone: 'tel', url: 'url' }
   const inputType = typeMap[f.data_type] || 'text'
@@ -477,6 +499,17 @@ document.addEventListener('submit', async (e) => {
     } else if (field.data_type === 'number') {
       const raw = fd.get(fieldName)
       val = raw !== '' && raw !== null ? Number(raw) : null
+    } else if (field.data_type === 'partial_date') {
+      const y = (fd.get(`${fieldName}__year`) ?? '').trim()
+      const m = (fd.get(`${fieldName}__month`) ?? '').trim()
+      const d = (fd.get(`${fieldName}__day`) ?? '').trim()
+      if (y) {
+        val = y
+        if (m) {
+          val += '-' + m.padStart(2, '0')
+          if (d) val += '-' + d.padStart(2, '0')
+        }
+      }
     } else {
       val = fd.get(fieldName) || null
     }
@@ -506,6 +539,18 @@ document.addEventListener('submit', async (e) => {
       } else if (f.data_type === 'number') {
         const raw = fd.get(f.name)
         if (raw !== '' && raw !== null) fvs[f.name] = Number(raw)
+      } else if (f.data_type === 'partial_date') {
+        const y = (fd.get(`${f.name}__year`) ?? '').trim()
+        const m = (fd.get(`${f.name}__month`) ?? '').trim()
+        const d = (fd.get(`${f.name}__day`) ?? '').trim()
+        if (y) {
+          let val = y
+          if (m) {
+            val += '-' + m.padStart(2, '0')
+            if (d) val += '-' + d.padStart(2, '0')
+          }
+          fvs[f.name] = val
+        }
       } else {
         const raw = fd.get(f.name)
         if (raw) fvs[f.name] = raw

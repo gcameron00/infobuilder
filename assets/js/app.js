@@ -9,7 +9,8 @@ const API = window.location.hostname === 'localhost'
   ? 'http://localhost:8787'
   : ''
 
-const DATA_TYPES = ['string', 'text', 'number', 'date', 'datetime', 'boolean', 'email', 'phone', 'url']
+const DATA_TYPES = ['string', 'text', 'number', 'date', 'datetime', 'partial_date', 'boolean', 'email', 'phone', 'url']
+const DATA_TYPE_LABELS = { partial_date: 'partial date' }
 
 const ICONS = [
   'activity','book-open','briefcase','building-2','calendar','circle',
@@ -271,7 +272,7 @@ function renderFieldsPanel(fields, typeId, parentType) {
     </div>
   `).join('')
 
-  const typeOptions = DATA_TYPES.map(t => `<option value="${t}">${t}</option>`).join('')
+  const typeOptions = DATA_TYPES.map(t => `<option value="${t}">${DATA_TYPE_LABELS[t] || t}</option>`).join('')
 
   return `
     <div class="field-list">${rows || '<p style="color:var(--color-muted);font-size:.85rem;margin:0">No fields yet.</p>'}</div>
@@ -436,7 +437,7 @@ function editRelationshipTypeForm(rt) {
 }
 
 function newFieldForm(typeId, parentType, apiPath) {
-  const typeOptions = DATA_TYPES.map(t => `<option value="${t}">${t}</option>`).join('')
+  const typeOptions = DATA_TYPES.map(t => `<option value="${t}">${DATA_TYPE_LABELS[t] || t}</option>`).join('')
   return `
     <form class="inline-form" data-action="create-field"
           data-type-id="${typeId}" data-parent="${parentType}" data-api="${apiPath}"
